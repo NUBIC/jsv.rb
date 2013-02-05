@@ -1,14 +1,14 @@
 {
-    "author": "David Yip <yipdw@northwestern.edu>",
-    "dependencies": {
-        "lockdown": "0.0.3",
-        "stitch": "~0.3.3"
-    },
-    "description": "Infrastructure for using JSV in ExecJS",
-    "license": "MIT",
-    "name": "ruby-jsv",
-    "scripts": {
-        "preinstall": "lockdown"
-    },
-    "version": "0.0.1"
+  "author": "David Yip <yipdw@northwestern.edu>",
+  "dependencies": {
+    "lockdown": "0.0.3",
+    "stitch": "~0.3.3"
+  },
+  "description": "Infrastructure for using JSV in ExecJS",
+  "license": "MIT",
+  "name": "ruby-jsv",
+  "scripts": {
+    "preinstall": "node_modules/.bin/lockdown"
+  },
+  "version": "0.0.1"
 }
