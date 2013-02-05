@@ -1,0 +1,26 @@
+1. ruby-jsv
+
+Some applications process very complex JSON documents.  In some cases,
+application developers have encoded expectations for those documents in JSON
+Schema, and would like to be able to use those schemas to validate input.
+
+Gary Court's JSV[1] is by far the most complete JSON Schema validator
+available, and it makes sense to build upon the work that has gone into JSV
+rather than try to reimplement it.
+
+This is a library for Ruby applications that builds a distribution of JSV
+suitable for use in ExecJS.  It also contains a Ruby shim for communicating
+with JSV.
+
+ruby-jsv was written at Northwestern University's Biomedical Informatics
+Center[2] for use in NCS Navigator Cases[3].
+
+2. License
+
+Copyright (c) 2013 David Yip.  Made available under the MIT License; see
+LICENSE for details.
+
+
+[1]: https://github.com/garycourt/JSV
+[2]: http://projects.nubic.northwestern.edu/
+[3]: https://github.com/NUBIC/ncs_navigator_core
