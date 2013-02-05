@@ -1,0 +1,12 @@
+{
+  "author": "David Yip <yipdw@northwestern.edu>",
+  "description": "Infrastructure for using JSV in ExecJS",
+  "license": "MIT",
+  "name": "ruby-jsv",
+  "scripts": {
+    "preinstall": "lockdown"
+  },
+  "dependencies": {
+    "lockdown": "0.0.3"
+  }
+}

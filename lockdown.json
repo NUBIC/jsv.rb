@@ -1,0 +1,53 @@
+{
+  "ansi": {
+    "0.1.2": "2627e29498f06e2a1c2ece9c21e28fd494430827"
+  },
+  "async": {
+    "0.2.2": "8414ee47da7548126b4d3d923850d54e68a72b28"
+  },
+  "glob": {
+    "3.1.17": "7dbe1d6f1e2ef039f6ba681616d39e135892088d"
+  },
+  "graceful-fs": {
+    "1.1.14": "07078db5f6377f6321fceaaedf497de124dc9465"
+  },
+  "inherits": {
+    "1.0.0": "38e1975285bf1f7ba9c84da102bb12771322ac48"
+  },
+  "lockdown": {
+    "0.0.3": "ae472291d9de188bdaacc9211994a54a038b0cdd"
+  },
+  "lru-cache": {
+    "2.0.4": "b8b61ae09848385ec6768760e39c123e7e39568a"
+  },
+  "minimatch": {
+    "0.2.9": "b80af947e6a83a8c68f26e54c0d6125bac9f887f"
+  },
+  "npmlog": {
+    "0.0.2": "f0cf4b2c519950c00e91ba8e2868b62bf86254f6"
+  },
+  "osenv": {
+    "0.0.3": "cd6ad8ddb290915ad9e22765576025d411f29cb6"
+  },
+  "read-installed": {
+    "0.0.1": "2d9b9086ae33ae42793210f519701169edabd2e2"
+  },
+  "read-package-json": {
+    "0.1.12": "2a5521a9580760deafa569b4c42fc9ea4c9b90a9"
+  },
+  "semver": {
+    "1.0.14": "cac5e2d55a6fbf958cb220ae844045071c78f676"
+  },
+  "sigmund": {
+    "1.0.0": "66a2b3a749ae8b5fb89efd4fcc01dc94fbe02296"
+  },
+  "slide": {
+    "1.1.3": "a16975ba76b766b92f98ef337243336c1fa3238f"
+  },
+  "stitch": {
+    "0.3.3": "a52f0d7f623a4c0cb7cccd494a71b61af3f2c0cb"
+  },
+  "underscore": {
+    "1.4.4": "61a6a32010622afa07963bf325203cf12239d604"
+  }
+}
