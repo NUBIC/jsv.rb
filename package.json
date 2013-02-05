@@ -2,7 +2,8 @@
   "author": "David Yip <yipdw@northwestern.edu>",
   "dependencies": {
     "lockdown": "0.0.3",
-    "stitch": "~0.3.3"
+    "stitch": "~0.3.3",
+    "express": "~3.1.0"
   },
   "description": "Infrastructure for using JSV in ExecJS",
   "license": "MIT",
