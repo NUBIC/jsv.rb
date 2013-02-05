@@ -3,7 +3,8 @@
   "dependencies": {
     "lockdown": "0.0.3",
     "stitch": "~0.3.3",
-    "express": "~3.1.0"
+    "express": "~3.1.0",
+    "coffee-script": "~1.4.0"
   },
   "description": "Infrastructure for using JSV in ExecJS",
   "license": "MIT",

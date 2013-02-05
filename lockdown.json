@@ -11,6 +11,9 @@
   "bytes": {
     "0.1.0": "c574812228126d6369d1576925a8579db3f8e5a2"
   },
+  "coffee-script": {
+    "1.4.0": "5e3bc8aac26c01a8e27bf107722c5655f5ad7d36"
+  },
   "commander": {
     "0.6.1": "fa68a14f6a945d54dbbe50d8cdb3320e9e3b1a06"
   },
