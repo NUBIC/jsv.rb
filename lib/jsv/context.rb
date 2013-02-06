@@ -12,10 +12,9 @@ module JSV
       setup_context
     end
 
-    def environment(env)
-      @execjs.exec(%Q{
-        env = jsv.createEnvironment('#{env}');
-      })
+    def environment(env = nil)
+      jsenv = env ? "'#{env}'": ''
+      @execjs.exec(%Q{env = jsv.createEnvironment(#{jsenv});})
 
       self
     end
@@ -24,28 +23,43 @@ module JSV
       @execjs.call('setInstance', json)
       @execjs.call('setSchema', schema)
       @execjs.call('validate')
+      @execjs.eval('report.errors == 0')
+    end
+
+    def errors
+      @execjs.eval('report.errors')
     end
 
     private
 
+    VARIABLES = %w(
+      env
+      instance
+      jsv
+      report
+      schema
+      setInstance
+      setSchema
+      validate
+    )
+
     def setup_context
-      %w(env instance jsv schema setInstance setSchema validate).each do |gvar|
-        @execjs.eval("#{gvar} = undefined")
-      end
+      VARIABLES.each { |var| @execjs.exec("#{var} = undefined") }
 
       @execjs.exec(%Q{
-        jsv = require('./jsv').JSV;
+        this.require.define();
+        jsv = this.require('./jsv').JSV;
 
-        setInstance = function (json) {
-          instance = JSON.parse(json);
+        setInstance = function (inp) {
+          instance = JSON.parse(inp);
         };
 
-        setSchema = function (schema) {
-          schema = JSON.parse(schema);
+        setSchema = function (inp) {
+          schema = JSON.parse(inp);
         };
 
         validate = function () {
-          env.validate(instance, schema);
+          report = env.validate(instance, schema);
         };
       })
     end
