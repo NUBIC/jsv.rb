@@ -1,4 +1,4 @@
-1. ruby-jsv
+1. jsv.rb
 
 Some applications process very complex JSON documents.  In some cases,
 application developers have encoded expectations for those documents in JSON
@@ -12,7 +12,7 @@ This is a library for Ruby applications that builds a distribution of JSV
 suitable for use in ExecJS.  It also contains a Ruby shim for communicating
 with JSV.
 
-ruby-jsv was written at Northwestern University's Biomedical Informatics
+jsv.rb was written at Northwestern University's Biomedical Informatics
 Center[2] for use in NCS Navigator Cases[3].
 
 2. License

@@ -6,7 +6,7 @@
   },
   "description": "Infrastructure for using JSV in ExecJS",
   "license": "MIT",
-  "name": "ruby-jsv",
+  "name": "jsv.rb",
   "scripts": {
     "preinstall": "node_modules/.bin/lockdown"
   },
