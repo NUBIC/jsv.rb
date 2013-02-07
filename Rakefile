@@ -1,3 +1,4 @@
+require 'bundler/gem_tasks'
 require 'rspec/core/rake_task'
 
 JS_DIR = File.expand_path('../js', __FILE__)

@@ -2,3 +2,4 @@ node_modules
 *.sw?
 Gemfile.lock
 .rbx
+pkg

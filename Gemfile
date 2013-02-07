@@ -1,11 +1,8 @@
 source "https://rubygems.org"
 
-gem 'execjs'
+gemspec
 
-group :development do
-  gem 'rake'
-  gem 'rspec'
-
+group :travis do
   platform :ruby do
     gem 'therubyracer'
   end
@@ -13,6 +10,4 @@ group :development do
   platform :jruby do
     gem 'therubyrhino'
   end
-
-  gem 'travis-lint'
 end
