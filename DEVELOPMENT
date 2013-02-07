@@ -11,6 +11,7 @@ not.  Let me know about your experiences.
 
 From the source tree root:
 
+    $ git submodule update --init
     $ npm install
     $ bundle install
     $ rake js:build
