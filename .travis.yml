@@ -1,13 +1,22 @@
 language: ruby
 rvm:
   - rbx-19mode
+  - jruby
   - 1.9.3
 env:
   - EXECJS_RUNTIME=RubyRacer
   - EXECJS_RUNTIME=Node
-  - EXECJS_RUNTIME=Johnson
+  - EXECJS_RUNTIME=RubyRhino
+matrix:
+  exclude:
+    - rvm: rbx-19mode
+      env: EXECJS_RUNTIME=RubyRhino
+    - rvm: 1.9.3
+      env: EXECJS_RUNTIME=RubyRhino
+    - rvm: jruby
+      env: EXECJS_RUNTIME=RubyRacer
 before_install:
-  - "sudo apt-get install libmozjs-dev"
+  - "sudo apt-get install rhino"
 before_script:
   - "./script/ci-prep.sh"
   - "rake js:build"
