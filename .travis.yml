@@ -15,8 +15,6 @@ matrix:
       env: EXECJS_RUNTIME=RubyRhino
     - rvm: jruby
       env: EXECJS_RUNTIME=RubyRacer
-before_install:
-  - "sudo apt-get install rhino"
 before_script:
   - "./script/ci-prep.sh"
   - "rake js:build"
