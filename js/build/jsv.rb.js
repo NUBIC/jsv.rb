@@ -1,142 +1,5870 @@
+
+(function(/*! Stitch !*/) {
+  if (!this.require) {
+    var modules = {}, cache = {}, require = function(name, root) {
+      var path = expand(root, name), module = cache[path], fn;
+      if (module) {
+        return module.exports;
+      } else if (fn = modules[path] || modules[path = expand(path, './index')]) {
+        module = {id: path, exports: {}};
+        try {
+          cache[path] = module;
+          fn(module.exports, function(name) {
+            return require(name, dirname(path));
+          }, module);
+          return module.exports;
+        } catch (err) {
+          delete cache[path];
+          throw err;
+        }
+      } else {
+        throw 'module \'' + name + '\' not found';
+      }
+    }, expand = function(root, name) {
+      var results = [], parts, part;
+      if (/^\.\.?(\/|$)/.test(name)) {
+        parts = [root, name].join('/').split('/');
+      } else {
+        parts = name.split('/');
+      }
+      for (var i = 0, length = parts.length; i < length; i++) {
+        part = parts[i];
+        if (part == '..') {
+          results.pop();
+        } else if (part != '.' && part != '') {
+          results.push(part);
+        }
+      }
+      return results.join('/');
+    }, dirname = function(path) {
+      return path.split('/').slice(0, -1).join('/');
+    };
+    this.require = function(name) {
+      return require(name, '');
+    }
+    this.require.define = function(bundle) {
+      for (var key in bundle)
+        modules[key] = bundle[key];
+    };
+  }
+  return this.require.define;
+}).call(this)({"environments": function(exports, require, module) {require("./json-schema-draft-01");
+require("./json-schema-draft-02");
+require("./json-schema-draft-03");}, "json-schema-draft-01": function(exports, require, module) {/**
+ * json-schema-draft-01 Environment
+ * 
+ * @fileOverview Implementation of the first revision of the JSON Schema specification draft.
+ * @author <a href="mailto:gary.court@gmail.com">Gary Court</a>
+ * @version 1.7.1
+ * @see http://github.com/garycourt/JSV
+ */
+
 /*
- URI.js v1.3 (c) 2010 Gary Court. License: http://github.com/garycourt/uri-js
-*/
-(function(){if(!this.require){var q={},u={},j=function(g,k){var a=d(k,g),b=u[a],c;if(b)return b.exports;if(c=q[a]||q[a=d(a,"./index")]){b={id:a,exports:{}};try{return u[a]=b,c(b.exports,function(b){return j(b,a.split("/").slice(0,-1).join("/"))},b),b.exports}catch(f){throw delete u[a],f;}}else throw"module '"+g+"' not found";},d=function(d,j){var a=[],b,c;b=/^\.\.?(\/|$)/.test(j)?[d,j].join("/").split("/"):j.split("/");for(var f=0,e=b.length;f<e;f++)c=b[f],".."==c?a.pop():"."!=c&&""!=c&&a.push(c);
-return a.join("/")};this.require=function(d){return j(d,"")};this.require.define=function(d){for(var j in d)q[j]=d[j]}}return this.require.define}).call(this)({environments:function(q,u){u("./json-schema-draft-01");u("./json-schema-draft-02");u("./json-schema-draft-03")},"json-schema-draft-01":function(q,u){var j={},d=u("./jsv").JSV,g,k;k={string:function(a){return"string"===a.getType()},number:function(a){return"number"===a.getType()},integer:function(a){return"number"===a.getType()&&0===a.getValue()%
-1},"boolean":function(a){return"boolean"===a.getType()},object:function(a){return"object"===a.getType()},array:function(a){return"array"===a.getType()},"null":function(a){return"null"===a.getType()},any:function(){return!0}};g=new d.Environment;g.setOption("defaultFragmentDelimiter",".");g.setOption("defaultSchemaURI","http://json-schema.org/schema#");k=g.createSchema({$schema:"http://json-schema.org/hyper-schema#",id:"http://json-schema.org/schema#",type:"object",properties:{type:{type:["string",
-"array"],items:{type:["string",{$ref:"#"}]},optional:!0,uniqueItems:!0,"default":"any",parser:function(a,b){var c;return"string"===a.getType()?a.getValue():"object"===a.getType()?a.getEnvironment().createSchema(a,b.getEnvironment().findSchema(b.resolveURI("#"))):"array"===a.getType()?(c=b.getValueOfProperty("parser"),d.mapArray(a.getProperties(),function(a){return c(a,b)})):"any"},validator:function(a,b,c,f,e,i,l){var h=d.toArray(b.getAttribute("type")),p,m,t,g;if("undefined"!==a.getType()&&h&&h.length){g=
-c.getValueOfProperty("typeValidators")||{};c=0;for(p=h.length;c<p;++c)if(m=h[c],d.isJSONSchema(m)){if(t=d.createObject(f),t.errors=[],t.validated=d.clone(f.validated),0===m.validate(a,t,e,i,l).errors.length)return!0}else if(g[m]!==j[m]&&"function"===typeof g[m]){if(g[m](a,f))return!0}else return!0;f.addError(a,b,"type","Instance is not a required type",h);return!1}return!0},typeValidators:k},properties:{type:"object",additionalProperties:{$ref:"#"},optional:!0,"default":{},parser:function(a,b,c){var f=
-a.getEnvironment(),e=b.getEnvironment();return"object"===a.getType()?c?f.createSchema(a.getProperty(c),e.findSchema(b.resolveURI("#"))):d.mapObject(a.getProperties(),function(a){return f.createSchema(a,e.findSchema(b.resolveURI("#")))}):{}},validator:function(a,b,c,d){var e;if("object"===a.getType())for(e in c=b.getAttribute("properties"),c)c[e]!==j[e]&&c[e]&&c[e].validate(a.getProperty(e),d,a,b,e)}},items:{type:[{$ref:"#"},"array"],items:{$ref:"#"},optional:!0,"default":{},parser:function(a,b){return"object"===
-a.getType()?a.getEnvironment().createSchema(a,b.getEnvironment().findSchema(b.resolveURI("#"))):"array"===a.getType()?d.mapArray(a.getProperties(),function(a){return a.getEnvironment().createSchema(a,b.getEnvironment().findSchema(b.resolveURI("#")))}):a.getEnvironment().createEmptySchema()},validator:function(a,b,c,f){var e,i,l,h,p;if("array"===a.getType())if(c=a.getProperties(),e=b.getAttribute("items"),p=b.getAttribute("additionalProperties"),"array"===d.typeOf(e)){i=0;for(l=c.length;i<l;++i)h=
-e[i]||p,!1!==h?h.validate(c[i],f,a,b,i):f.addError(a,b,"additionalProperties","Additional items are not allowed",h)}else{h=e||p;i=0;for(l=c.length;i<l;++i)h.validate(c[i],f,a,b,i)}}},optional:{type:"boolean",optional:!0,"default":!1,parser:function(a){return!!a.getValue()},validator:function(a,b,c,d){"undefined"===a.getType()&&!b.getAttribute("optional")&&d.addError(a,b,"optional","Property is required",!1)},validationRequired:!0},additionalProperties:{type:[{$ref:"#"},"boolean"],optional:!0,"default":{},
-parser:function(a,b){return"object"===a.getType()?a.getEnvironment().createSchema(a,b.getEnvironment().findSchema(b.resolveURI("#"))):"boolean"===a.getType()&&!1===a.getValue()?!1:a.getEnvironment().createEmptySchema()},validator:function(a,b,c,f){var e,i,l;if("object"===a.getType())for(l in c=b.getAttribute("additionalProperties"),e=b.getAttribute("properties")||{},i=a.getProperties(),i)i[l]!==j[l]&&(i[l]&&!e[l])&&(d.isJSONSchema(c)?c.validate(i[l],f,a,b,l):!1===c&&f.addError(a,b,"additionalProperties",
-"Additional properties are not allowed",c))}},requires:{type:["string",{$ref:"#"}],optional:!0,parser:function(a,b){if("string"===a.getType())return a.getValue();if("object"===a.getType())return a.getEnvironment().createSchema(a,b.getEnvironment().findSchema(b.resolveURI("#")))},validator:function(a,b,c,f,e){"undefined"!==a.getType()&&(e&&"undefined"!==e.getType())&&(c=b.getAttribute("requires"),"string"===typeof c?"undefined"===e.getProperty(c).getType()&&f.addError(a,b,"requires",'Property requires sibling property "'+
-c+'"',c):d.isJSONSchema(c)&&c.validate(e,f))}},minimum:{type:"number",optional:!0,parser:function(a){if("number"===a.getType())return a.getValue()},validator:function(a,b,c,d){var e;"number"===a.getType()&&(c=b.getAttribute("minimum"),e=b.getAttribute("minimumCanEqual"),"number"===typeof c&&(a.getValue()<c||!1===e&&a.getValue()===c)&&d.addError(a,b,"minimum","Number is less than the required minimum value",c))}},maximum:{type:"number",optional:!0,parser:function(a){if("number"===a.getType())return a.getValue()},
-validator:function(a,b,c,d){var e;"number"===a.getType()&&(c=b.getAttribute("maximum"),e=b.getAttribute("maximumCanEqual"),"number"===typeof c&&(a.getValue()>c||!1===e&&a.getValue()===c)&&d.addError(a,b,"maximum","Number is greater than the required maximum value",c))}},minimumCanEqual:{type:"boolean",optional:!0,requires:"minimum","default":!0,parser:function(a){return"boolean"===a.getType()?a.getValue():!0}},maximumCanEqual:{type:"boolean",optional:!0,requires:"maximum","default":!0,parser:function(a){return"boolean"===
-a.getType()?a.getValue():!0}},minItems:{type:"integer",optional:!0,minimum:0,"default":0,parser:function(a){return"number"===a.getType()?a.getValue():0},validator:function(a,b,c,d){"array"===a.getType()&&(c=b.getAttribute("minItems"),"number"===typeof c&&a.getProperties().length<c&&d.addError(a,b,"minItems","The number of items is less than the required minimum",c))}},maxItems:{type:"integer",optional:!0,minimum:0,parser:function(a){if("number"===a.getType())return a.getValue()},validator:function(a,
-b,c,d){"array"===a.getType()&&(c=b.getAttribute("maxItems"),"number"===typeof c&&a.getProperties().length>c&&d.addError(a,b,"maxItems","The number of items is greater than the required maximum",c))}},pattern:{type:"string",optional:!0,format:"regex",parser:function(a){if("string"===a.getType())return a.getValue()},validator:function(a,b,c,d){var e;try{e=RegExp(b.getAttribute("pattern")),"string"===a.getType()&&(e&&!e.test(a.getValue()))&&d.addError(a,b,"pattern","String does not match pattern",e.toString())}catch(i){d.addError(a,
-b,"pattern","Invalid pattern",i)}}},minLength:{type:"integer",optional:!0,minimum:0,"default":0,parser:function(a){return"number"===a.getType()?a.getValue():0},validator:function(a,b,c,d){"string"===a.getType()&&(c=b.getAttribute("minLength"),"number"===typeof c&&a.getValue().length<c&&d.addError(a,b,"minLength","String is less than the required minimum length",c))}},maxLength:{type:"integer",optional:!0,parser:function(a){if("number"===a.getType())return a.getValue()},validator:function(a,b,c,d){"string"===
-a.getType()&&(c=b.getAttribute("maxLength"),"number"===typeof c&&a.getValue().length>c&&d.addError(a,b,"maxLength","String is greater than the required maximum length",c))}},"enum":{type:"array",optional:!0,minItems:1,uniqueItems:!0,parser:function(a){if("array"===a.getType())return a.getValue()},validator:function(a,b,c,d){var e,i;if("undefined"!==a.getType()&&(c=b.getAttribute("enum"))){e=0;for(i=c.length;e<i;++e)if(a.equals(c[e]))return!0;d.addError(a,b,"enum","Instance is not one of the possible values",
-c)}}},title:{type:"string",optional:!0},description:{type:"string",optional:!0},format:{type:"string",optional:!0,parser:function(a){if("string"===a.getType())return a.getValue()},validator:function(a,b,c,d){var e;"string"===a.getType()&&(e=b.getAttribute("format"),c=c.getValueOfProperty("formatValidators"),"string"===typeof e&&(c[e]!==j[e]&&"function"===typeof c[e]&&!c[e].call(this,a,d))&&d.addError(a,b,"format","String is not in the required format",e))},formatValidators:{}},contentEncoding:{type:"string",
-optional:!0},"default":{type:"any",optional:!0},maxDecimal:{type:"integer",optional:!0,minimum:0,parser:function(a){if("number"===a.getType())return a.getValue()},validator:function(a,b,c,d){var e;"number"===a.getType()&&(c=b.getAttribute("maxDecimal"),"number"===typeof c&&(e=a.getValue().toString(10).split(".")[1])&&e.length>c&&d.addError(a,b,"maxDecimal","The number of decimal places is greater than the allowed maximum",c))}},disallow:{type:["string","array"],items:{type:"string"},optional:!0,uniqueItems:!0,
-parser:function(a){if("string"===a.getType()||"array"===a.getType())return a.getValue()},validator:function(a,b,c,f){var e=d.toArray(b.getAttribute("disallow")),i,l,h;if("undefined"!==a.getType()&&e&&e.length){h=c.getValueOfProperty("typeValidators")||{};c=0;for(i=e.length;c<i;++c)if(l=e[c],h[l]!==j[l]&&"function"===typeof h[l]&&h[l](a,f))return f.addError(a,b,"disallow","Instance is a disallowed type",e),!1}return!0},typeValidators:k},"extends":{type:[{$ref:"#"},"array"],items:{$ref:"#"},optional:!0,
-"default":{},parser:function(a,b){if("object"===a.getType())return a.getEnvironment().createSchema(a,b.getEnvironment().findSchema(b.resolveURI("#")));if("array"===a.getType())return d.mapArray(a.getProperties(),function(a){return a.getEnvironment().createSchema(a,b.getEnvironment().findSchema(b.resolveURI("#")))})},validator:function(a,b,c,f,e,i,l){var b=b.getAttribute("extends"),h;if(b)if(d.isJSONSchema(b))b.validate(a,f,e,i,l);else if("array"===d.typeOf(b)){c=0;for(h=b.length;c<h;++c)b[c].validate(a,
-f,e,i,l)}}}},optional:!0,"default":{},fragmentResolution:"dot-delimited",parser:function(a,b){if("object"===a.getType())return a.getEnvironment().createSchema(a,b)},validator:function(a,b,c,f,e,i,l){var h=b.getPropertyNames(),p,m=c.getAttribute("properties"),t;for(p in m)m[p]!==j[p]&&m[p].getValueOfProperty("validationRequired")&&d.pushUnique(h,p);p=0;for(c=h.length;p<c;++p)m[h[p]]!==j[h[p]]&&(t=m[h[p]].getValueOfProperty("validator"),"function"===typeof t&&t(a,b,m[h[p]],f,e,i,l))},initializer:function(a){var b;
-(b=a._schema.getLink("describedby",a))&&a._schema._uri!==b&&a.setReference("describedby",b);b=a._schema.getLink("self",a);"string"===d.typeOf(b)&&(a._uri=d.formatURI(b));(b=a._schema.getLink("full",a))&&a._uri!==b&&a.setReference("full",b);b=a.getAttribute("extends");d.isJSONSchema(b)&&(b=d.inherits(b,a,!0),a=a._env.createSchema(b,a._schema,a._uri));return a}},!0,"http://json-schema.org/schema#");k=g.createSchema(d.inherits(k,g.createSchema({$schema:"http://json-schema.org/hyper-schema#",id:"http://json-schema.org/hyper-schema#",
-properties:{links:{type:"array",items:{$ref:"links#"},optional:!0,parser:function(a,b,c){var f=b.getValueOfProperty("items").$ref,e=b.getEnvironment().findSchema(f),i=e&&e.getValueOfProperty("parser"),c=d.toArray(c),a="function"===typeof i?d.mapArray(a.getProperties(),function(a){return i(a,e)}):d.toArray(a.getValue());c[0]&&(a=d.filterArray(a,function(a){return a.rel===c[0]}));c[1]&&(a=d.mapArray(a,function(a){var i=c[1],a=a.href;return(a=a.replace(/\{(.+)\}/g,function(a,b){var c;c="-this"===b?i.getValue():
-i.getValueOfProperty(b);return void 0!==c?String(c):""}))?d.formatURI(i.resolveURI(a)):a}));return a}},fragmentResolution:{type:"string",optional:!0,"default":"dot-delimited"},root:{type:"boolean",optional:!0,"default":!1},readonly:{type:"boolean",optional:!0,"default":!1},pathStart:{type:"string",optional:!0,format:"uri",validator:function(a,b,c,d){"undefined"!==a.getType()&&(c=b.getAttribute("pathStart"),"string"===typeof c&&0!==a.getURI().indexOf(c)&&d.addError(a,b,"pathStart","Instance's URI does not start with "+
-c,c))}},mediaType:{type:"string",optional:!0,format:"media-type"},alternate:{type:"array",items:{$ref:"#"},optional:!0}},links:[{href:"{$ref}",rel:"full"},{href:"{$schema}",rel:"describedby"},{href:"{id}",rel:"self"}]},k),!0),!0,"http://json-schema.org/hyper-schema#");g.setOption("defaultSchemaURI","http://json-schema.org/hyper-schema#");g.createSchema({$schema:"http://json-schema.org/hyper-schema#",id:"http://json-schema.org/links#",type:"object",properties:{href:{type:"string"},rel:{type:"string"},
-method:{type:"string","default":"GET",optional:!0},enctype:{type:"string",requires:"method",optional:!0},properties:{type:"object",additionalProperties:{$ref:"hyper-schema#"},optional:!0,parser:function(a,b,c){var f=a.getEnvironment(),e=b.getEnvironment(),i=b.getValueOfProperty("additionalProperties").$ref;if("object"===a.getType())return c?f.createSchema(a.getProperty(c),e.findSchema(b.resolveURI(i))):d.mapObject(a.getProperties(),function(a){return f.createSchema(a,e.findSchema(b.resolveURI(i)))})}}},
-parser:function(a,b){var c=b.getProperty("properties");return"object"===a.getType()?d.mapObject(a.getProperties(),function(a,b){var i=c.getProperty(b),l=i&&i.getValueOfProperty("parser");return"function"===typeof l?l(a,i):a.getValue()}):a.getValue()}},k,"http://json-schema.org/links#");d.registerEnvironment("json-schema-draft-00",g);d.registerEnvironment("json-schema-draft-01",d.createEnvironment("json-schema-draft-00"));d.getDefaultEnvironmentID()||d.setDefaultEnvironmentID("json-schema-draft-01")},
-"json-schema-draft-02":function(q,u){var j={},d=u("./jsv").JSV,g,k;k={string:function(a){return"string"===a.getType()},number:function(a){return"number"===a.getType()},integer:function(a){return"number"===a.getType()&&0===a.getValue()%1},"boolean":function(a){return"boolean"===a.getType()},object:function(a){return"object"===a.getType()},array:function(a){return"array"===a.getType()},"null":function(a){return"null"===a.getType()},any:function(){return!0}};g=new d.Environment;g.setOption("defaultFragmentDelimiter",
-"/");g.setOption("defaultSchemaURI","http://json-schema.org/schema#");k=g.createSchema({$schema:"http://json-schema.org/hyper-schema#",id:"http://json-schema.org/schema#",type:"object",properties:{type:{type:["string","array"],items:{type:["string",{$ref:"#"}]},optional:!0,uniqueItems:!0,"default":"any",parser:function(a,b){var c;return"string"===a.getType()?a.getValue():"object"===a.getType()?a.getEnvironment().createSchema(a,b.getEnvironment().findSchema(b.resolveURI("#"))):"array"===a.getType()?
-(c=b.getValueOfProperty("parser"),d.mapArray(a.getProperties(),function(a){return c(a,b)})):"any"},validator:function(a,b,c,f,e,i,l){var h=d.toArray(b.getAttribute("type")),p,m,t,g;if("undefined"!==a.getType()&&h&&h.length){g=c.getValueOfProperty("typeValidators")||{};c=0;for(p=h.length;c<p;++c)if(m=h[c],d.isJSONSchema(m)){if(t=d.createObject(f),t.errors=[],t.validated=d.clone(f.validated),0===m.validate(a,t,e,i,l).errors.length)return!0}else if(g[m]!==j[m]&&"function"===typeof g[m]){if(g[m](a,f))return!0}else return!0;
-f.addError(a,b,"type","Instance is not a required type",h);return!1}return!0},typeValidators:k},properties:{type:"object",additionalProperties:{$ref:"#"},optional:!0,"default":{},parser:function(a,b,c){var f=a.getEnvironment(),e=b.getEnvironment();return"object"===a.getType()?c?f.createSchema(a.getProperty(c),e.findSchema(b.resolveURI("#"))):d.mapObject(a.getProperties(),function(a){return f.createSchema(a,e.findSchema(b.resolveURI("#")))}):{}},validator:function(a,b,c,d){var e;if("object"===a.getType())for(e in c=
-b.getAttribute("properties"),c)c[e]!==j[e]&&c[e]&&c[e].validate(a.getProperty(e),d,a,b,e)}},items:{type:[{$ref:"#"},"array"],items:{$ref:"#"},optional:!0,"default":{},parser:function(a,b){return"object"===a.getType()?a.getEnvironment().createSchema(a,b.getEnvironment().findSchema(b.resolveURI("#"))):"array"===a.getType()?d.mapArray(a.getProperties(),function(a){return a.getEnvironment().createSchema(a,b.getEnvironment().findSchema(b.resolveURI("#")))}):a.getEnvironment().createEmptySchema()},validator:function(a,
-b,c,f){var e,i,l,h,p;if("array"===a.getType())if(c=a.getProperties(),e=b.getAttribute("items"),p=b.getAttribute("additionalProperties"),"array"===d.typeOf(e)){i=0;for(l=c.length;i<l;++i)h=e[i]||p,!1!==h?h.validate(c[i],f,a,b,i):f.addError(a,b,"additionalProperties","Additional items are not allowed",h)}else{h=e||p;i=0;for(l=c.length;i<l;++i)h.validate(c[i],f,a,b,i)}}},optional:{type:"boolean",optional:!0,"default":!1,parser:function(a){return!!a.getValue()},validator:function(a,b,c,d){"undefined"===
-a.getType()&&!b.getAttribute("optional")&&d.addError(a,b,"optional","Property is required",!1)},validationRequired:!0},additionalProperties:{type:[{$ref:"#"},"boolean"],optional:!0,"default":{},parser:function(a,b){return"object"===a.getType()?a.getEnvironment().createSchema(a,b.getEnvironment().findSchema(b.resolveURI("#"))):"boolean"===a.getType()&&!1===a.getValue()?!1:a.getEnvironment().createEmptySchema()},validator:function(a,b,c,f){var e,i,l;if("object"===a.getType())for(l in c=b.getAttribute("additionalProperties"),
-e=b.getAttribute("properties")||{},i=a.getProperties(),i)i[l]!==j[l]&&(i[l]&&!e[l])&&(d.isJSONSchema(c)?c.validate(i[l],f,a,b,l):!1===c&&f.addError(a,b,"additionalProperties","Additional properties are not allowed",c))}},requires:{type:["string",{$ref:"#"}],optional:!0,parser:function(a,b){if("string"===a.getType())return a.getValue();if("object"===a.getType())return a.getEnvironment().createSchema(a,b.getEnvironment().findSchema(b.resolveURI("#")))},validator:function(a,b,c,f,e){"undefined"!==a.getType()&&
-(e&&"undefined"!==e.getType())&&(c=b.getAttribute("requires"),"string"===typeof c?"undefined"===e.getProperty(c).getType()&&f.addError(a,b,"requires",'Property requires sibling property "'+c+'"',c):d.isJSONSchema(c)&&c.validate(e,f))}},minimum:{type:"number",optional:!0,parser:function(a){if("number"===a.getType())return a.getValue()},validator:function(a,b,c,d){var e;"number"===a.getType()&&(c=b.getAttribute("minimum"),e=b.getAttribute("minimumCanEqual"),"number"===typeof c&&(a.getValue()<c||!1===
-e&&a.getValue()===c)&&d.addError(a,b,"minimum","Number is less than the required minimum value",c))}},maximum:{type:"number",optional:!0,parser:function(a){if("number"===a.getType())return a.getValue()},validator:function(a,b,c,d){var e;"number"===a.getType()&&(c=b.getAttribute("maximum"),e=b.getAttribute("maximumCanEqual"),"number"===typeof c&&(a.getValue()>c||!1===e&&a.getValue()===c)&&d.addError(a,b,"maximum","Number is greater than the required maximum value",c))}},minimumCanEqual:{type:"boolean",
-optional:!0,requires:"minimum","default":!0,parser:function(a){return"boolean"===a.getType()?a.getValue():!0}},maximumCanEqual:{type:"boolean",optional:!0,requires:"maximum","default":!0,parser:function(a){return"boolean"===a.getType()?a.getValue():!0}},minItems:{type:"integer",optional:!0,minimum:0,"default":0,parser:function(a){return"number"===a.getType()?a.getValue():0},validator:function(a,b,c,d){"array"===a.getType()&&(c=b.getAttribute("minItems"),"number"===typeof c&&a.getProperties().length<
-c&&d.addError(a,b,"minItems","The number of items is less than the required minimum",c))}},maxItems:{type:"integer",optional:!0,minimum:0,parser:function(a){if("number"===a.getType())return a.getValue()},validator:function(a,b,c,d){"array"===a.getType()&&(c=b.getAttribute("maxItems"),"number"===typeof c&&a.getProperties().length>c&&d.addError(a,b,"maxItems","The number of items is greater than the required maximum",c))}},uniqueItems:{type:"boolean",optional:!0,"default":!1,parser:function(a){return!!a.getValue()},
-validator:function(a,b,c,d){var e,i,l,h;if("array"===a.getType()&&b.getAttribute("uniqueItems")){c=a.getProperties();e=0;for(i=c.length-1;e<i;++e){l=e+1;for(h=c.length;l<h;++l)c[e].equals(c[l])&&d.addError(a,b,"uniqueItems","Array can only contain unique items",{x:e,y:l})}}}},pattern:{type:"string",optional:!0,format:"regex",parser:function(a){if("string"===a.getType())return a.getValue()},validator:function(a,b,c,d){var e;try{e=RegExp(b.getAttribute("pattern")),"string"===a.getType()&&(e&&!e.test(a.getValue()))&&
-d.addError(a,b,"pattern","String does not match pattern",e.toString())}catch(i){d.addError(a,b,"pattern","Invalid pattern",i)}}},minLength:{type:"integer",optional:!0,minimum:0,"default":0,parser:function(a){return"number"===a.getType()?a.getValue():0},validator:function(a,b,c,d){"string"===a.getType()&&(c=b.getAttribute("minLength"),"number"===typeof c&&a.getValue().length<c&&d.addError(a,b,"minLength","String is less than the required minimum length",c))}},maxLength:{type:"integer",optional:!0,
-parser:function(a){if("number"===a.getType())return a.getValue()},validator:function(a,b,c,d){"string"===a.getType()&&(c=b.getAttribute("maxLength"),"number"===typeof c&&a.getValue().length>c&&d.addError(a,b,"maxLength","String is greater than the required maximum length",c))}},"enum":{type:"array",optional:!0,minItems:1,uniqueItems:!0,parser:function(a){if("array"===a.getType())return a.getValue()},validator:function(a,b,c,d){var e,i;if("undefined"!==a.getType()&&(c=b.getAttribute("enum"))){e=0;
-for(i=c.length;e<i;++e)if(a.equals(c[e]))return!0;d.addError(a,b,"enum","Instance is not one of the possible values",c)}}},title:{type:"string",optional:!0},description:{type:"string",optional:!0},format:{type:"string",optional:!0,parser:function(a){if("string"===a.getType())return a.getValue()},validator:function(a,b,c,d){var e;"string"===a.getType()&&(e=b.getAttribute("format"),c=c.getValueOfProperty("formatValidators"),"string"===typeof e&&(c[e]!==j[e]&&"function"===typeof c[e]&&!c[e].call(this,
-a,d))&&d.addError(a,b,"format","String is not in the required format",e))},formatValidators:{}},contentEncoding:{type:"string",optional:!0},"default":{type:"any",optional:!0},divisibleBy:{type:"number",minimum:0,minimumCanEqual:!1,optional:!0,parser:function(a){if("number"===a.getType())return a.getValue()},validator:function(a,b,c,d){"number"===a.getType()&&(c=b.getAttribute("divisibleBy"),0===c?d.addError(a,b,"divisibleBy","Nothing is divisible by 0",c):1!==c&&0!==a.getValue()/c%1&&d.addError(a,
-b,"divisibleBy","Number is not divisible by "+c,c))}},disallow:{type:["string","array"],items:{type:"string"},optional:!0,uniqueItems:!0,parser:function(a){if("string"===a.getType()||"array"===a.getType())return a.getValue()},validator:function(a,b,c,g){var e=d.toArray(b.getAttribute("disallow")),i,l,h;if("undefined"!==a.getType()&&e&&e.length){h=c.getValueOfProperty("typeValidators")||{};c=0;for(i=e.length;c<i;++c)if(l=e[c],h[l]!==j[l]&&"function"===typeof h[l]&&h[l](a,g))return g.addError(a,b,"disallow",
-"Instance is a disallowed type",e),!1}return!0},typeValidators:k},"extends":{type:[{$ref:"#"},"array"],items:{$ref:"#"},optional:!0,"default":{},parser:function(a,b){if("object"===a.getType())return a.getEnvironment().createSchema(a,b.getEnvironment().findSchema(b.resolveURI("#")));if("array"===a.getType())return d.mapArray(a.getProperties(),function(a){return a.getEnvironment().createSchema(a,b.getEnvironment().findSchema(b.resolveURI("#")))})},validator:function(a,b,c,g,e,i,l){var b=b.getAttribute("extends"),
-h;if(b)if(d.isJSONSchema(b))b.validate(a,g,e,i,l);else if("array"===d.typeOf(b)){c=0;for(h=b.length;c<h;++c)b[c].validate(a,g,e,i,l)}}}},optional:!0,"default":{},fragmentResolution:"slash-delimited",parser:function(a,b){if("object"===a.getType())return a.getEnvironment().createSchema(a,b)},validator:function(a,b,c,g,e,i,l){var h=b.getPropertyNames(),p,m=c.getAttribute("properties"),t;for(p in m)m[p]!==j[p]&&m[p].getValueOfProperty("validationRequired")&&d.pushUnique(h,p);p=0;for(c=h.length;p<c;++p)m[h[p]]!==
-j[h[p]]&&(t=m[h[p]].getValueOfProperty("validator"),"function"===typeof t&&t(a,b,m[h[p]],g,e,i,l))},initializer:function(a){var b;(b=a._schema.getLink("describedby",a))&&a._schema._uri!==b&&a.setReference("describedby",b);b=a._schema.getLink("self",a);"string"===d.typeOf(b)&&(a._uri=d.formatURI(b));(b=a._schema.getLink("full",a))&&a._uri!==b&&a.setReference("full",b);b=a.getAttribute("extends");d.isJSONSchema(b)&&(b=d.inherits(b,a,!0),a=a._env.createSchema(b,a._schema,a._uri));return a}},!0,"http://json-schema.org/schema#");
-k=g.createSchema(d.inherits(k,g.createSchema({$schema:"http://json-schema.org/hyper-schema#",id:"http://json-schema.org/hyper-schema#",properties:{links:{type:"array",items:{$ref:"links#"},optional:!0,parser:function(a,b,c){var g=b.getValueOfProperty("items").$ref,e=b.getEnvironment().findSchema(g),i=e&&e.getValueOfProperty("parser"),c=d.toArray(c),a="function"===typeof i?d.mapArray(a.getProperties(),function(a){return i(a,e)}):d.toArray(a.getValue());c[0]&&(a=d.filterArray(a,function(a){return a.rel===
-c[0]}));c[1]&&(a=d.mapArray(a,function(a){var i=c[1],a=a.href;return(a=a.replace(/\{(.+)\}/g,function(a,b){var c;c="-this"===b?i.getValue():i.getValueOfProperty(b);return void 0!==c?String(c):""}))?d.formatURI(i.resolveURI(a)):a}));return a}},fragmentResolution:{type:"string",optional:!0,"default":"slash-delimited"},root:{type:"boolean",optional:!0,"default":!1},readonly:{type:"boolean",optional:!0,"default":!1},pathStart:{type:"string",optional:!0,format:"uri",validator:function(a,b,c,d){"undefined"!==
-a.getType()&&(c=b.getAttribute("pathStart"),"string"===typeof c&&0!==a.getURI().indexOf(c)&&d.addError(a,b,"pathStart","Instance's URI does not start with "+c,c))}},mediaType:{type:"string",optional:!0,format:"media-type"},alternate:{type:"array",items:{$ref:"#"},optional:!0}},links:[{href:"{$ref}",rel:"full"},{href:"{$schema}",rel:"describedby"},{href:"{id}",rel:"self"}]},k),!0),!0,"http://json-schema.org/hyper-schema#");g.setOption("defaultSchemaURI","http://json-schema.org/hyper-schema#");g.createSchema({$schema:"http://json-schema.org/hyper-schema#",
-id:"http://json-schema.org/links#",type:"object",properties:{href:{type:"string"},rel:{type:"string"},targetSchema:{$ref:"hyper-schema#",parser:k.getAttribute("parser")},method:{type:"string","default":"GET",optional:!0},enctype:{type:"string",requires:"method",optional:!0},properties:{type:"object",additionalProperties:{$ref:"hyper-schema#"},optional:!0,parser:function(a,b,c){var g=a.getEnvironment(),e=b.getEnvironment(),i=b.getValueOfProperty("additionalProperties").$ref;if("object"===a.getType())return c?
-g.createSchema(a.getProperty(c),e.findSchema(b.resolveURI(i))):d.mapObject(a.getProperties(),function(a){return g.createSchema(a,e.findSchema(b.resolveURI(i)))})}}},parser:function(a,b){var c=b.getProperty("properties");return"object"===a.getType()?d.mapObject(a.getProperties(),function(a,b){var i=c.getProperty(b),l=i&&i.getValueOfProperty("parser");return"function"===typeof l?l(a,i):a.getValue()}):a.getValue()}},k,"http://json-schema.org/links#");d.registerEnvironment("json-schema-draft-02",g);(!d.getDefaultEnvironmentID()||
-"json-schema-draft-01"===d.getDefaultEnvironmentID())&&d.setDefaultEnvironmentID("json-schema-draft-02")},"json-schema-draft-03":function(q,u){var j=function(a,b,h,c){var e={},t,f,n,j;if("object"===a.getType())for(f in t=b.getAttribute("patternProperties"),n=a.getProperties(),t)if(t[f]!==d[f]){a=null;try{a=RegExp(f)}catch(k){h&&h.addError(b,c,"patternProperties","Invalid pattern",f)}if(a)for(j in n)n[j]!==d[j]&&a.test(j)&&(e[j]=e[j]?g.pushUnique(e[j],t[f]):[t[f]])}return e},d={},g=u("./jsv").JSV,
-k,a,b,c,f,e;k={string:function(a){return"string"===a.getType()},number:function(a){return"number"===a.getType()},integer:function(a){return"number"===a.getType()&&0===a.getValue()%1},"boolean":function(a){return"boolean"===a.getType()},object:function(a){return"object"===a.getType()},array:function(a){return"array"===a.getType()},"null":function(a){return"null"===a.getType()},any:function(){return!0}};a=new g.Environment;a.setOption("validateReferences",!0);a.setOption("enforceReferences",!1);a.setOption("strict",
-!1);b={$schema:"http://json-schema.org/draft-00/hyper-schema#",id:"http://json-schema.org/draft-00/schema#",type:"object",properties:{type:{type:["string","array"],items:{type:["string",{$ref:"#"}]},optional:!0,uniqueItems:!0,"default":"any",parser:function(a,b){var h;return"string"===a.getType()?a.getValue():"object"===a.getType()?a.getEnvironment().createSchema(a,b.getEnvironment().findSchema(b.resolveURI("#"))):"array"===a.getType()?(h=b.getValueOfProperty("parser"),g.mapArray(a.getProperties(),
-function(a){return h(a,b)})):"any"},validator:function(a,b,h,c,e,t,f){var n=g.toArray(b.getAttribute("type")),j,k,s,q;if("undefined"!==a.getType()&&n&&n.length){q=h.getValueOfProperty("typeValidators")||{};h=0;for(j=n.length;h<j;++h)if(k=n[h],g.isJSONSchema(k)){if(s=g.createObject(c),s.errors=[],s.validated=g.clone(c.validated),0===k.validate(a,s,e,t,f).errors.length)return!0}else if(q[k]!==d[k]&&"function"===typeof q[k]){if(q[k](a,c))return!0}else return!0;c.addError(a,b,"type","Instance is not a required type",
-n);return!1}return!0},typeValidators:k},properties:{type:"object",additionalProperties:{$ref:"#"},optional:!0,"default":{},parser:function(a,b,h){var c=a.getEnvironment(),d=b.getEnvironment();return"object"===a.getType()?h?c.createSchema(a.getProperty(h),d.findSchema(b.resolveURI("#"))):g.mapObject(a.getProperties(),function(a){return c.createSchema(a,d.findSchema(b.resolveURI("#")))}):{}},validator:function(a,b,h,c){var e;if("object"===a.getType())for(e in h=b.getAttribute("properties"),h)h[e]!==
-d[e]&&h[e]&&h[e].validate(a.getProperty(e),c,a,b,e)}},items:{type:[{$ref:"#"},"array"],items:{$ref:"#"},optional:!0,"default":{},parser:function(a,b){return"object"===a.getType()?a.getEnvironment().createSchema(a,b.getEnvironment().findSchema(b.resolveURI("#"))):"array"===a.getType()?g.mapArray(a.getProperties(),function(a){return a.getEnvironment().createSchema(a,b.getEnvironment().findSchema(b.resolveURI("#")))}):a.getEnvironment().createEmptySchema()},validator:function(a,b,h,c){var d,e,f,n,j;
-if("array"===a.getType())if(h=a.getProperties(),d=b.getAttribute("items"),j=b.getAttribute("additionalProperties"),"array"===g.typeOf(d)){e=0;for(f=h.length;e<f;++e)n=d[e]||j,!1!==n?n.validate(h[e],c,a,b,e):c.addError(a,b,"additionalProperties","Additional items are not allowed",n)}else{n=d||j;e=0;for(f=h.length;e<f;++e)n.validate(h[e],c,a,b,e)}}},optional:{type:"boolean",optional:!0,"default":!1,parser:function(a){return!!a.getValue()},validator:function(a,b,c,d){"undefined"===a.getType()&&!b.getAttribute("optional")&&
-d.addError(a,b,"optional","Property is required",!1)},validationRequired:!0},additionalProperties:{type:[{$ref:"#"},"boolean"],optional:!0,"default":{},parser:function(a,b){return"object"===a.getType()?a.getEnvironment().createSchema(a,b.getEnvironment().findSchema(b.resolveURI("#"))):"boolean"===a.getType()&&!1===a.getValue()?!1:a.getEnvironment().createEmptySchema()},validator:function(a,b,c,e){var m,t,f;if("object"===a.getType())for(f in c=b.getAttribute("additionalProperties"),m=b.getAttribute("properties")||
-{},t=a.getProperties(),t)t[f]!==d[f]&&(t[f]&&m[f]===d[f])&&(g.isJSONSchema(c)?c.validate(t[f],e,a,b,f):!1===c&&e.addError(a,b,"additionalProperties","Additional properties are not allowed",c))}},requires:{type:["string",{$ref:"#"}],optional:!0,parser:function(a,b){if("string"===a.getType())return a.getValue();if("object"===a.getType())return a.getEnvironment().createSchema(a,b.getEnvironment().findSchema(b.resolveURI("#")))},validator:function(a,b,c,d,e){"undefined"!==a.getType()&&(e&&"undefined"!==
-e.getType())&&(c=b.getAttribute("requires"),"string"===typeof c?"undefined"===e.getProperty(c).getType()&&d.addError(a,b,"requires",'Property requires sibling property "'+c+'"',c):g.isJSONSchema(c)&&c.validate(e,d))}},minimum:{type:"number",optional:!0,parser:function(a){if("number"===a.getType())return a.getValue()},validator:function(a,b,c,d){var e;"number"===a.getType()&&(c=b.getAttribute("minimum"),e=b.getAttribute("minimumCanEqual"),"number"===typeof c&&(a.getValue()<c||!1===e&&a.getValue()===
-c)&&d.addError(a,b,"minimum","Number is less than the required minimum value",c))}},maximum:{type:"number",optional:!0,parser:function(a){if("number"===a.getType())return a.getValue()},validator:function(a,b,c,d){var e;"number"===a.getType()&&(c=b.getAttribute("maximum"),e=b.getAttribute("maximumCanEqual"),"number"===typeof c&&(a.getValue()>c||!1===e&&a.getValue()===c)&&d.addError(a,b,"maximum","Number is greater than the required maximum value",c))}},minimumCanEqual:{type:"boolean",optional:!0,requires:"minimum",
-"default":!0,parser:function(a){return"boolean"===a.getType()?a.getValue():!0}},maximumCanEqual:{type:"boolean",optional:!0,requires:"maximum","default":!0,parser:function(a){return"boolean"===a.getType()?a.getValue():!0}},minItems:{type:"integer",optional:!0,minimum:0,"default":0,parser:function(a){return"number"===a.getType()?a.getValue():0},validator:function(a,b,c,d){"array"===a.getType()&&(c=b.getAttribute("minItems"),"number"===typeof c&&a.getProperties().length<c&&d.addError(a,b,"minItems",
-"The number of items is less than the required minimum",c))}},maxItems:{type:"integer",optional:!0,minimum:0,parser:function(a){if("number"===a.getType())return a.getValue()},validator:function(a,b,c,d){"array"===a.getType()&&(c=b.getAttribute("maxItems"),"number"===typeof c&&a.getProperties().length>c&&d.addError(a,b,"maxItems","The number of items is greater than the required maximum",c))}},pattern:{type:"string",optional:!0,format:"regex",parser:function(a){if("string"===a.getType())return a.getValue()},
-validator:function(a,b,c,d){var e;try{e=RegExp(b.getAttribute("pattern")),"string"===a.getType()&&(e&&!e.test(a.getValue()))&&d.addError(a,b,"pattern","String does not match pattern",e.toString())}catch(g){d.addError(b,c,"pattern","Invalid pattern",b.getValueOfProperty("pattern"))}}},minLength:{type:"integer",optional:!0,minimum:0,"default":0,parser:function(a){return"number"===a.getType()?a.getValue():0},validator:function(a,b,c,d){"string"===a.getType()&&(c=b.getAttribute("minLength"),"number"===
-typeof c&&a.getValue().length<c&&d.addError(a,b,"minLength","String is less than the required minimum length",c))}},maxLength:{type:"integer",optional:!0,parser:function(a){if("number"===a.getType())return a.getValue()},validator:function(a,b,c,d){"string"===a.getType()&&(c=b.getAttribute("maxLength"),"number"===typeof c&&a.getValue().length>c&&d.addError(a,b,"maxLength","String is greater than the required maximum length",c))}},"enum":{type:"array",optional:!0,minItems:1,uniqueItems:!0,parser:function(a){if("array"===
-a.getType())return a.getValue()},validator:function(a,b,c,d){var e,g;if("undefined"!==a.getType()&&(c=b.getAttribute("enum"))){e=0;for(g=c.length;e<g;++e)if(a.equals(c[e]))return!0;d.addError(a,b,"enum","Instance is not one of the possible values",c)}}},title:{type:"string",optional:!0},description:{type:"string",optional:!0},format:{type:"string",optional:!0,parser:function(a){if("string"===a.getType())return a.getValue()},validator:function(a,b,c,e){var m;"string"===a.getType()&&(m=b.getAttribute("format"),
-c=c.getValueOfProperty("formatValidators"),"string"===typeof m&&(c[m]!==d[m]&&"function"===typeof c[m]&&!c[m].call(this,a,e))&&e.addError(a,b,"format","String is not in the required format",m))},formatValidators:{}},contentEncoding:{type:"string",optional:!0},"default":{type:"any",optional:!0},maxDecimal:{type:"integer",optional:!0,minimum:0,parser:function(a){if("number"===a.getType())return a.getValue()},validator:function(a,b,c,d){var e;"number"===a.getType()&&(c=b.getAttribute("maxDecimal"),"number"===
-typeof c&&(e=a.getValue().toString(10).split(".")[1])&&e.length>c&&d.addError(a,b,"maxDecimal","The number of decimal places is greater than the allowed maximum",c))}},disallow:{type:["string","array"],items:{type:"string"},optional:!0,uniqueItems:!0,parser:function(a){if("string"===a.getType()||"array"===a.getType())return a.getValue()},validator:function(a,b,c,e,m,t,f){var n=g.toArray(b.getAttribute("disallow")),j,k,s,q;if("undefined"!==a.getType()&&n&&n.length){s=c.getValueOfProperty("typeValidators")||
-{};c=0;for(j=n.length;c<j;++c)if(k=n[c],g.isJSONSchema(k)){if(q=g.createObject(e),q.errors=[],q.validated=g.clone(e.validated),0===k.validate(a,q,m,t,f).errors.length)return e.addError(a,b,"disallow","Instance is a disallowed type",n),!1}else if(s[k]!==d[k]&&"function"===typeof s[k]&&s[k](a,e))return e.addError(a,b,"disallow","Instance is a disallowed type",n),!1}return!0},typeValidators:k},"extends":{type:[{$ref:"#"},"array"],items:{$ref:"#"},optional:!0,"default":{},parser:function(a,b){if("object"===
-a.getType())return a.getEnvironment().createSchema(a,b.getEnvironment().findSchema(b.resolveURI("#")));if("array"===a.getType())return g.mapArray(a.getProperties(),function(a){return a.getEnvironment().createSchema(a,b.getEnvironment().findSchema(b.resolveURI("#")))})},validator:function(a,b,c,d,e,f,j){var b=b.getAttribute("extends"),n;if(b)if(g.isJSONSchema(b))b.validate(a,d,e,f,j);else if("array"===g.typeOf(b)){c=0;for(n=b.length;c<n;++c)b[c].validate(a,d,e,f,j)}}}},optional:!0,"default":{},fragmentResolution:"dot-delimited",
-parser:function(a,b){if("object"===a.getType())return a.getEnvironment().createSchema(a,b)},validator:function(a,b,c,e,m,f,j){var n=b.getPropertyNames(),k,q,c=c.getAttribute("properties");q=a.getEnvironment().getOption("strict");var s;for(k in c)c[k]!==d[k]&&(c[k].getValueOfProperty("validationRequired")&&g.pushUnique(n,k),q&&c[k].getValueOfProperty("deprecated")&&g.popFirst(n,k));k=0;for(q=n.length;k<q;++k)c[n[k]]!==d[n[k]]&&(s=c[n[k]].getValueOfProperty("validator"),"function"===typeof s&&s(a,b,
-c[n[k]],e,m,f,j))}};c={$schema:"http://json-schema.org/draft-00/hyper-schema#",id:"http://json-schema.org/draft-00/hyper-schema#",properties:{links:{type:"array",items:{$ref:"links#"},optional:!0,parser:function(a,b,c){var d=b.getValueOfProperty("items").$ref,e=b.getEnvironment().findSchema(d),f=e&&e.getValueOfProperty("parser"),j,c=g.toArray(c),a="function"===typeof f?g.mapArray(a.getProperties(),function(a){return f(a,e)}):g.toArray(a.getValue());c[0]&&(a=g.filterArray(a,function(a){return a.rel===
-c[0]}));c[1]&&(j=b.getValueOfProperty("selfReferenceVariable"),a=g.mapArray(a,function(a){var b=c[1],a=a.href;return(a=a.replace(/\{(.+)\}/g,function(a,c){var d;d=c===j?b.getValue():b.getValueOfProperty(c);return void 0!==d?String(d):""}))?g.formatURI(b.resolveURI(a)):a}));return a},selfReferenceVariable:"-this"},fragmentResolution:{type:"string",optional:!0,"default":"dot-delimited"},root:{type:"boolean",optional:!0,"default":!1},readonly:{type:"boolean",optional:!0,"default":!1},pathStart:{type:"string",
-optional:!0,format:"uri",validator:function(a,b,c,d){"undefined"!==a.getType()&&(c=b.getAttribute("pathStart"),"string"===typeof c&&0!==a.getURI().indexOf(c)&&d.addError(a,b,"pathStart","Instance's URI does not start with "+c,c))}},mediaType:{type:"string",optional:!0,format:"media-type"},alternate:{type:"array",items:{$ref:"#"},optional:!0}},links:[{href:"{$ref}",rel:"full"},{href:"{$schema}",rel:"describedby"},{href:"{id}",rel:"self"}],initializer:function(a){var b;(b=a._schema.getLink("describedby",
-a))&&a._schema._uri!==b&&a.setReference("describedby",b);b=a._schema.getLink("self",a);"string"===g.typeOf(b)&&(a._uri=g.formatURI(b));(b=a._schema.getLink("full",a))&&a._uri!==b&&a.setReference("full",b);b=a.getAttribute("extends");g.isJSONSchema(b)&&(b=g.inherits(b,a,!0),a=a._env.createSchema(b,a._schema,a._uri));return a}};k={$schema:"http://json-schema.org/draft-00/hyper-schema#",id:"http://json-schema.org/draft-00/links#",type:"object",properties:{href:{type:"string"},rel:{type:"string"},method:{type:"string",
-"default":"GET",optional:!0},enctype:{type:"string",requires:"method",optional:!0},properties:{type:"object",additionalProperties:{$ref:"hyper-schema#"},optional:!0,parser:function(a,b,c){var d=a.getEnvironment(),e=b.getEnvironment(),f=b.getValueOfProperty("additionalProperties").$ref;if("object"===a.getType())return c?d.createSchema(a.getProperty(c),e.findSchema(b.resolveURI(f))):g.mapObject(a.getProperties(),function(a){return d.createSchema(a,e.findSchema(b.resolveURI(f)))})}}},parser:function(a,
-b){var c=b.getProperty("properties");return"object"===a.getType()?g.mapObject(a.getProperties(),function(a,b){var d=c.getProperty(b),e=d&&d.getValueOfProperty("parser");return"function"===typeof e?e(a,d):a.getValue()}):a.getValue()}};a.setOption("defaultFragmentDelimiter",".");a.setOption("defaultSchemaURI","http://json-schema.org/draft-00/schema#");f=a.createSchema(b,!0,"http://json-schema.org/draft-00/schema#");f=a.createSchema(g.inherits(f,a.createSchema(c,!0,"http://json-schema.org/draft-00/hyper-schema#"),
-!0),!0,"http://json-schema.org/draft-00/hyper-schema#");a.setOption("defaultSchemaURI","http://json-schema.org/draft-00/hyper-schema#");a.createSchema(k,f,"http://json-schema.org/draft-00/links#");b=g.inherits(b,{$schema:"http://json-schema.org/draft-01/hyper-schema#",id:"http://json-schema.org/draft-01/schema#"});c=g.inherits(c,{$schema:"http://json-schema.org/draft-01/hyper-schema#",id:"http://json-schema.org/draft-01/hyper-schema#"});f=g.inherits(k,{$schema:"http://json-schema.org/draft-01/hyper-schema#",
-id:"http://json-schema.org/draft-01/links#"});a.setOption("defaultSchemaURI","http://json-schema.org/draft-01/schema#");k=a.createSchema(b,!0,"http://json-schema.org/draft-01/schema#");e=a.createSchema(g.inherits(k,a.createSchema(c,!0,"http://json-schema.org/draft-01/hyper-schema#"),!0),!0,"http://json-schema.org/draft-01/hyper-schema#");a.setOption("defaultSchemaURI","http://json-schema.org/draft-01/hyper-schema#");a.createSchema(f,e,"http://json-schema.org/draft-01/links#");k=g.inherits(b,{$schema:"http://json-schema.org/draft-02/hyper-schema#",
-id:"http://json-schema.org/draft-02/schema#",properties:{uniqueItems:{type:"boolean",optional:!0,"default":!1,parser:function(a){return!!a.getValue()},validator:function(a,b,c,d){var e,g,f,j;if("array"===a.getType()&&b.getAttribute("uniqueItems")){c=a.getProperties();e=0;for(g=c.length-1;e<g;++e){f=e+1;for(j=c.length;f<j;++f)c[e].equals(c[f])&&d.addError(a,b,"uniqueItems","Array can only contain unique items",{x:e,y:f})}}}},maxDecimal:{deprecated:!0},divisibleBy:{type:"number",minimum:0,minimumCanEqual:!1,
-optional:!0,parser:function(a){if("number"===a.getType())return a.getValue()},validator:function(a,b,c,d){var e,g;"number"===a.getType()&&(c=b.getAttribute("divisibleBy"),0===c?d.addError(a,b,"divisibleBy","Nothing is divisible by 0",c):1!==c&&(e=a.getValue(),g=Math.max((e.toString().split(".")[1]||" ").length,(c.toString().split(".")[1]||" ").length),g=parseFloat((e/c%1).toFixed(g)),0<g&&1>g&&d.addError(a,b,"divisibleBy","Number is not divisible by "+c,c)))}}},fragmentResolution:"slash-delimited"});
-b=g.inherits(c,{id:"http://json-schema.org/draft-02/hyper-schema#",properties:{fragmentResolution:{"default":"slash-delimited"}}});c=g.inherits(f,{$schema:"http://json-schema.org/draft-02/hyper-schema#",id:"http://json-schema.org/draft-02/links#",properties:{targetSchema:{$ref:"hyper-schema#",parser:e.getAttribute("parser")}}});a.setOption("defaultFragmentDelimiter","/");a.setOption("defaultSchemaURI","http://json-schema.org/draft-02/schema#");f=a.createSchema(k,!0,"http://json-schema.org/draft-02/schema#");
-e=a.createSchema(g.inherits(f,a.createSchema(b,!0,"http://json-schema.org/draft-02/hyper-schema#"),!0),!0,"http://json-schema.org/draft-02/hyper-schema#");a.setOption("defaultSchemaURI","http://json-schema.org/draft-02/hyper-schema#");a.createSchema(c,e,"http://json-schema.org/draft-02/links#");k=g.inherits(k,{$schema:"http://json-schema.org/draft-03/schema#",id:"http://json-schema.org/draft-03/schema#",properties:{patternProperties:{type:"object",additionalProperties:{$ref:"#"},"default":{},parser:f.getValueOfProperty("properties").properties.parser,
-validator:function(a,b,c,e){var g,f;if("object"===a.getType())for(g in c=j(a,b,e,c),c)if(c[g]!==d[g])for(f=c[g].length;f--;)c[g][f].validate(a.getProperty(g),e,a,b,g)}},additionalProperties:{validator:function(a,b,c,e){var f,k,q,n;if("object"===a.getType())for(n in c=b.getAttribute("additionalProperties"),f=b.getAttribute("properties")||{},k=a.getProperties(),q=j(a,b),k)k[n]!==d[n]&&(k[n]&&f[n]===d[n]&&q[n]===d[n])&&(g.isJSONSchema(c)?c.validate(k[n],e,a,b,n):!1===c&&e.addError(a,b,"additionalProperties",
-"Additional properties are not allowed",c))}},items:{validator:function(a,b,c,d){var e,f,j,k,q;if("array"===a.getType())if(c=a.getProperties(),e=b.getAttribute("items"),q=b.getAttribute("additionalItems"),"array"===g.typeOf(e)){f=0;for(j=c.length;f<j;++f)k=e[f]||q,!1!==k?k.validate(c[f],d,a,b,f):d.addError(a,b,"additionalItems","Additional items are not allowed",k)}else{k=e||q;f=0;for(j=c.length;f<j;++f)k.validate(c[f],d,a,b,f)}}},additionalItems:{type:[{$ref:"#"},"boolean"],"default":{},parser:f.getValueOfProperty("properties").additionalProperties.parser,
-validator:function(a,b,c,d){var e,g,f;if("array"===a.getType()&&"undefined"===b.getProperty("items").getType())if(c=b.getAttribute("additionalItems"),e=a.getProperties(),!1!==c){g=0;for(f=e.length;g<f;++g)c.validate(e[g],d,a,b,g)}else e.length&&d.addError(a,b,"additionalItems","Additional items are not allowed",c)}},optional:{validationRequired:!1,deprecated:!0},required:{type:"boolean","default":!1,parser:function(a){return!!a.getValue()},validator:function(a,b,c,d){"undefined"===a.getType()&&b.getAttribute("required")&&
-d.addError(a,b,"required","Property is required",!0)}},requires:{deprecated:!0},dependencies:{type:"object",additionalProperties:{type:["string","array",{$ref:"#"}],items:{type:"string"}},"default":{},parser:function(a,b,c){function d(a){var c=a.getType();if("string"===c||"array"===c)return a.getValue();if("object"===c)return a.getEnvironment().createSchema(a,b.getEnvironment().findSchema(b.resolveURI("#")))}return"object"===a.getType()?c?d(a.getProperty(c)):g.mapObject(a.getProperties(),d):{}},validator:function(a,
-b,c,e){var f,j,k,n;if("object"===a.getType())for(f in c=b.getAttribute("dependencies"),c)if(c[f]!==d[f]&&"undefined"!==a.getProperty(f).getType())if(j=c[f],k=g.typeOf(j),"string"===k)"undefined"===a.getProperty(j).getType()&&e.addError(a,b,"dependencies",'Property "'+f+'" requires sibling property "'+j+'"',c);else if("array"===k){k=0;for(n=j.length;k<n;++k)"undefined"===a.getProperty(j[k]).getType()&&e.addError(a,b,"dependencies",'Property "'+f+'" requires sibling property "'+j[k]+'"',c)}else g.isJSONSchema(j)&&
-j.validate(a,e)}},minimumCanEqual:{deprecated:!0},maximumCanEqual:{deprecated:!0},exclusiveMinimum:{type:"boolean","default":!1,parser:function(a){return!!a.getValue()}},exclusiveMaximum:{type:"boolean","default":!1,parser:function(a){return!!a.getValue()}},minimum:{validator:function(a,b,c,d){var e;"number"===a.getType()&&(c=b.getAttribute("minimum"),e=b.getAttribute("exclusiveMinimum")||!a.getEnvironment().getOption("strict")&&!b.getAttribute("minimumCanEqual"),"number"===typeof c&&(a.getValue()<
-c||!0===e&&a.getValue()===c)&&d.addError(a,b,"minimum","Number is less than the required minimum value",c))}},maximum:{validator:function(a,b,c,d){var e;"number"===a.getType()&&(c=b.getAttribute("maximum"),e=b.getAttribute("exclusiveMaximum")||!a.getEnvironment().getOption("strict")&&!b.getAttribute("maximumCanEqual"),"number"===typeof c&&(a.getValue()>c||!0===e&&a.getValue()===c)&&d.addError(a,b,"maximum","Number is greater than the required maximum value",c))}},contentEncoding:{deprecated:!0},divisibleBy:{exclusiveMinimum:!0},
-disallow:{items:{type:["string",{$ref:"#"}]},parser:k.properties.type.parser},id:{type:"string",format:"uri"},$ref:{type:"string",format:"uri"},$schema:{type:"string",format:"uri"}},dependencies:{exclusiveMinimum:"minimum",exclusiveMaximum:"maximum"},initializer:function(a){var b,c;b=a.getValueOfProperty("$schema");c=a.getValueOfProperty("$ref");var d=a.getValueOfProperty("id");b&&(b=a.resolveURI(b),a.setReference("describedby",b));d&&(b=a.resolveURI(d),"string"===g.typeOf(b)&&(a._uri=g.formatURI(b)));
-c&&(b=a.resolveURI(c),a.setReference("full",b));c=a.getAttribute("extends");g.isJSONSchema(c)&&(c=g.inherits(c,a,!0),a=a._env.createSchema(c,a._schema,a._uri));return a}});b=g.inherits(b,{$schema:"http://json-schema.org/draft-03/hyper-schema#",id:"http://json-schema.org/draft-03/hyper-schema#",properties:{links:{selfReferenceVariable:"@"},root:{deprecated:!0},contentEncoding:{deprecated:!1},alternate:{deprecated:!0}}});c=g.inherits(c,{$schema:"http://json-schema.org/draft-03/hyper-schema#",id:"http://json-schema.org/draft-03/links#",
-properties:{href:{required:!0,format:"link-description-object-template"},rel:{required:!0},properties:{deprecated:!0},schema:{$ref:"http://json-schema.org/draft-03/hyper-schema#"}}});a.setOption("defaultSchemaURI","http://json-schema.org/draft-03/schema#");k=a.createSchema(k,!0,"http://json-schema.org/draft-03/schema#");b=a.createSchema(g.inherits(k,a.createSchema(b,!0,"http://json-schema.org/draft-03/hyper-schema#"),!0),!0,"http://json-schema.org/draft-03/hyper-schema#");a.setOption("defaultSchemaURI",
-"http://json-schema.org/draft-03/hyper-schema#");c=a.createSchema(c,!0,"http://json-schema.org/draft-03/links#");a.setOption("latestJSONSchemaSchemaURI","http://json-schema.org/draft-03/schema#");a.setOption("latestJSONSchemaHyperSchemaURI","http://json-schema.org/draft-03/hyper-schema#");a.setOption("latestJSONSchemaLinksURI","http://json-schema.org/draft-03/links#");a._schemas["http://json-schema.org/schema#"]=k;a._schemas["http://json-schema.org/hyper-schema#"]=b;a._schemas["http://json-schema.org/links#"]=
-c;g.registerEnvironment("json-schema-draft-03",a);(!g.getDefaultEnvironmentID()||"json-schema-draft-01"===g.getDefaultEnvironmentID()||"json-schema-draft-02"===g.getDefaultEnvironmentID())&&g.setDefaultEnvironmentID("json-schema-draft-03")},jsv:function(q,u){q=q||this;u=u||function(){return q};(function(){function j(a){return void 0===a?"undefined":null===a?"null":Object.prototype.toString.call(a).split(" ").pop().split("]").shift().toLowerCase()}function d(){}function g(a){d.prototype=a||{};return new d}
-function k(a,b,c){var d={},e;for(e in a)a[e]!==v[e]&&(d[e]=b.call(c,a[e],e,a));return d}function a(a){var b=[],c;switch(j(a)){case "object":for(c in a)a[c]!==v[c]&&(b[b.length]=c);break;case "array":for(c=a.length-1;0<=c;--c)b[c]=c}return b}function b(){return[s[Math.floor(16*Math.random())],s[Math.floor(16*Math.random())],s[Math.floor(16*Math.random())],s[Math.floor(16*Math.random())],s[Math.floor(16*Math.random())],s[Math.floor(16*Math.random())],s[Math.floor(16*Math.random())],s[Math.floor(16*
-Math.random())],"-",s[Math.floor(16*Math.random())],s[Math.floor(16*Math.random())],s[Math.floor(16*Math.random())],s[Math.floor(16*Math.random())],"-4",s[Math.floor(16*Math.random())],s[Math.floor(16*Math.random())],s[Math.floor(16*Math.random())],"-",s[Math.floor(16*Math.random())&3|8],s[Math.floor(16*Math.random())],s[Math.floor(16*Math.random())],s[Math.floor(16*Math.random())],"-",s[Math.floor(16*Math.random())],s[Math.floor(16*Math.random())],s[Math.floor(16*Math.random())],s[Math.floor(16*
-Math.random())],s[Math.floor(16*Math.random())],s[Math.floor(16*Math.random())],s[Math.floor(16*Math.random())],s[Math.floor(16*Math.random())],s[Math.floor(16*Math.random())],s[Math.floor(16*Math.random())],s[Math.floor(16*Math.random())],s[Math.floor(16*Math.random())]].join("")}function c(a){return encodeURIComponent(a).replace(/!/g,"%21").replace(/'/g,"%27").replace(/\(/g,"%28").replace(/\)/g,"%29").replace(/\*/g,"%2A")}function f(a){"string"===typeof a&&-1===a.indexOf("#")&&(a+="#");return a}
-function e(a){if(a instanceof h)return a.getURI();switch(j(a)){case "undefined":case "null":case "boolean":case "number":case "string":return a;case "object":return k(a,e);case "array":return z(a,e);default:return a.toString()}}function i(a,b,c,d,e){Error.call(this,d);this.uri=a instanceof h?a.getURI():a;this.schemaUri=b instanceof h?b.getURI():b;this.attribute=c;this.description=this.message=d;this.details=e}function l(){this.errors=[];this.validated={}}function h(a,c,d,e){c instanceof h&&("string"!==
-typeof e&&(e=c._fd),"string"!==typeof d&&(d=c._uri),c=c._value);"string"!==typeof d?d="urn:uuid:"+b()+"#":-1===d.indexOf(":")&&(d=f(C.resolve("urn:uuid:"+b()+"#",d)));this._env=a;this._value=c;this._uri=d;this._fd=e||this._env._options.defaultFragmentDelimiter}function p(a,b){var c,d;a instanceof h&&(a=a.getValue());switch(j(a)){case "object":if(b){c={};for(d in a)a[d]!==v[d]&&(c[d]=p(a[d],b));return c}return g(a);case "array":if(b){c=Array(a.length);for(d=a.length;0<=--d;)c[d]=p(a[d],b);return c}return Array.prototype.slice.call(a);
-default:return a}}function m(a,b,c,d){h.call(this,a,b,c);this._schema=!0===d?this:b instanceof m&&!(d instanceof m)?b._schema:d instanceof m?d:this._env.getDefaultSchema()||this._env.createEmptySchema();a=this._schema.getValueOfProperty("fragmentResolution");"dot-delimited"===a?this._fd=".":"slash-delimited"===a&&(this._fd="/");return this.rebuild()}function t(a){return function(){for(var b=this,c=[],d=b._refs&&b._refs.full,e;d;)if(e=b._env.findSchema(d)){if(e._value===b._value)break;b=e;c.push(d);
-d=b._refs&&b._refs.full;if(-1<c.indexOf(d))break}else{if(b._env._options.enforceReferences)throw new i(b,b._schema,"{full}","Unknown schema reference",d);d=null}return a.apply(b,arguments)}}function w(a,b,c){var d=j(a),e=j(b),g;if("undefined"===e)return p(a,!0);if("undefined"===d||e!==d)return p(b,!0);if("object"===e){a instanceof m&&(a=a.getAttributes());b instanceof m&&(b=b.getAttributes(),b["extends"]&&(c&&b["extends"]instanceof m)&&(b["extends"]=[b["extends"]]));d=p(a,!0);for(g in b)b[g]!==v[g]&&
-(d[g]=w(a[g],b[g],c));return d}return p(b,!0)}function n(){this._id=b();this._schemas={};this._options={};this.createSchema({},!0,"urn:jsv:empty-schema#")}var C=u("./uri/uri").URI,v={},s="0123456789abcdef".split(""),z,A,y;z=function(a,b,c){for(var d=0,e=a.length,g=Array(e);d<e;++d)g[d]=b.call(c,a[d],d,a);return g};Array.prototype.map&&(z=function(a,b,c){return Array.prototype.map.call(a,b,c)});A=function(a,b,c){for(var d=0,e=a.length,g=[];d<e;++d)b.call(c,a[d],d,a)&&(g[g.length]=a[d]);return g};Array.prototype.filter&&
-(A=function(a,b,c){return Array.prototype.filter.call(a,b,c)});y=function(a,b){for(var c=0,d=a.length;c<d;++c)if(a[c]===b)return c;return-1};Array.prototype.indexOf&&(y=function(a,b){return Array.prototype.indexOf.call(a,b)});i.prototype=Error();i.prototype.constructor=i;i.prototype.name="InitializationError";l.prototype.addError=function(a,b,c,d,g){this.errors.push({uri:a instanceof h?a.getURI():a,schemaUri:b instanceof h?b.getURI():b,attribute:c,message:d,details:e(g)})};l.prototype.registerValidation=
-function(a,b){this.validated[a]?this.validated[a].push(b):this.validated[a]=[b]};l.prototype.isValidatedBy=function(a,b){return!!this.validated[a]&&-1!==y(this.validated[a],b)};h.prototype.getEnvironment=function(){return this._env};h.prototype.getType=function(){return j(this._value)};h.prototype.getValue=function(){return this._value};h.prototype.getURI=function(){return this._uri};h.prototype.resolveURI=function(a){return f(C.resolve(this._uri,a))};h.prototype.getPropertyNames=function(){return a(this._value)};
-h.prototype.getProperty=function(a){var b=this._value?this._value[a]:void 0;return b instanceof h?b:new h(this._env,b,this._uri+this._fd+c(a),this._fd)};h.prototype.getProperties=function(){var a=j(this._value),b=this;if("object"===a)return k(this._value,function(a,d){return a instanceof h?a:new h(b._env,a,b._uri+b._fd+c(d),b._fd)});if("array"===a)return z(this._value,function(a,d){return a instanceof h?a:new h(b._env,a,b._uri+b._fd+c(d),b._fd)})};h.prototype.getValueOfProperty=function(a){if(this._value)return this._value[a]instanceof
-h?this._value[a]._value:this._value[a]};h.prototype.equals=function(a){return a instanceof h?this._value===a._value:this._value===a};m.prototype=g(h.prototype);m.prototype.getSchema=function(){var a=this._refs&&this._refs.describedby,b;if(a)if(b=a&&this._env.findSchema(a))b.equals(this._schema)||(this._schema=b,this.rebuild());else if(this._env._options.enforceReferences)throw new i(this,this._schema,"{describedby}","Unknown schema reference",a);return this._schema};m.prototype.getAttribute=function(a,
-b){var c,d,e;c=this.getSchema();if(!b&&this._attributes&&this._attributes.hasOwnProperty(a))return this._attributes[a];c=c.getProperty("properties").getProperty(a);d=c.getValueOfProperty("parser");e=this.getProperty(a);return"function"===typeof d?(c=d(e,c,b),!b&&this._attributes&&(this._attributes[a]=c),c):e.getValue()};m.prototype.getAttributes=function(){var a,b,c,d,e;b=this.getSchema();if(!this._attributes&&"object"===this.getType())for(c in a=this.getProperties(),b=b.getProperty("properties"),
-this._attributes={},a)a[c]!==v[c]&&(e=(d=b&&b.getProperty(c))&&d.getValueOfProperty("parser"),this._attributes[c]="function"===typeof e?e(a[c],d):a[c].getValue());return p(this._attributes,!1)};m.prototype.getLink=function(a,b){var c=this.getAttribute("links",[a,b]);if(c&&c.length&&c[c.length-1])return c[c.length-1]};m.prototype.validate=function(a,b,c,d,e){var g=this.getSchema(),f=g.getValueOfProperty("validator");a instanceof h||(a=this.getEnvironment().createInstance(a));b instanceof l||(b=new l);
-this._env._options.validateReferences&&this._refs&&(this._refs.describedby&&!this._env.findSchema(this._refs.describedby)&&b.addError(this,this._schema,"{describedby}","Unknown schema reference",this._refs.describedby),this._refs.full&&!this._env.findSchema(this._refs.full)&&b.addError(this,this._schema,"{full}","Unknown schema reference",this._refs.full));"function"===typeof f&&!b.isValidatedBy(a.getURI(),this.getURI())&&(b.registerValidation(a.getURI(),this.getURI()),f(a,this,g,b,c,d,e));return b};
-for(var B in m.prototype)m.prototype[B]!==v[B]&&"function"===j(m.prototype[B])&&(m.prototype[B]=t(m.prototype[B]));m.prototype.rebuild=function(){var a=this,b=a.getSchema().getValueOfProperty("initializer");a._refs=null;a._attributes=null;"function"===typeof b&&(a=b(a));a._env._schemas[a._uri]=a;a.getAttributes();return a};m.prototype.setReference=function(a,b){this._refs||(this._refs={});this._refs[a]=this.resolveURI(b)};m.prototype.getReference=function(a){return this._refs&&this._refs[a]};n.prototype.clone=
-function(){var a=new n;a._schemas=g(this._schemas);a._options=g(this._options);return a};n.prototype.createInstance=function(a,b){b=f(b);return a instanceof h&&(!b||a.getURI()===b)?a:new h(this,a,b)};n.prototype.createSchema=function(a,b,c){c=f(c);return a instanceof m&&(!c||a._uri===c)&&(!b||a.getSchema().equals(b))?a:new m(this,a,c,b)};n.prototype.createEmptySchema=function(){return this._schemas["urn:jsv:empty-schema#"]};n.prototype.findSchema=function(a){return this._schemas[f(a)]};n.prototype.setOption=
-function(a,b){this._options[a]=b};n.prototype.getOption=function(a){return this._options[a]};n.prototype.setDefaultFragmentDelimiter=function(a){"string"===typeof a&&0<a.length&&(this._options.defaultFragmentDelimiter=a)};n.prototype.getDefaultFragmentDelimiter=function(){return this._options.defaultFragmentDelimiter};n.prototype.setDefaultSchemaURI=function(a){"string"===typeof a&&(this._options.defaultSchemaURI=f(a))};n.prototype.getDefaultSchema=function(){return this.findSchema(this._options.defaultSchemaURI)};
-n.prototype.validate=function(a,b){var c,d,e,g=new l;try{c=this.createInstance(a),g.instance=c}catch(f){g.addError(f.uri,f.schemaUri,f.attribute,f.message,f.details)}try{d=this.createSchema(b),g.schema=d,e=d.getSchema(),g.schemaSchema=e}catch(h){g.addError(h.uri,h.schemaUri,h.attribute,h.message,h.details)}e&&e.validate(d,g);return g.errors.length?g:d.validate(c,g)};n.prototype._checkForInvalidInstances=function(a,b){for(var d=[],e=[[b,this._schemas[b]]],g=0,f,h,i;g++<a&&e.length;)if(f=e.shift(),
-h=f[0],f=f[1],f instanceof m)if(this._schemas[f._uri]!==f)d.push("Instance "+h+" does not match "+f._uri);else for(i in f=f.getAttributes(),f)f[i]!==v[i]&&e.push([h+"/"+c(i),f[i]]);else if("object"===j(f))for(i in f)f.hasOwnProperty(i)&&e.push([h+"/"+c(i),f[i]]);else if("array"===j(f))for(i=0;i<f.length;++i)e.push([h+"/"+c(i),f[i]]);return d.length?d:g};this.JSV=A={_environments:{},_defaultEnvironmentID:"",isJSONInstance:function(a){return a instanceof h},isJSONSchema:function(a){return a instanceof
-m},createEnvironment:function(a){a=a||this._defaultEnvironmentID;if(!this._environments[a])throw Error("Unknown Environment ID");return this._environments[a].clone()},Environment:n,registerEnvironment:function(a,b){if((a=a||(b||0)._id)&&!this._environments[a]&&b instanceof n)b._id=a,this._environments[a]=b},setDefaultEnvironmentID:function(a){if("string"===typeof a){if(!this._environments[a])throw Error("Unknown Environment ID");this._defaultEnvironmentID=a}},getDefaultEnvironmentID:function(){return this._defaultEnvironmentID},
-typeOf:j,createObject:g,mapObject:k,mapArray:z,filterArray:A,searchArray:y,toArray:function(a){return void 0!==a&&null!==a?a instanceof Array&&!a.callee?a:"number"!==typeof a.length||a.split||a.setInterval||a.call?[a]:Array.prototype.slice.call(a):[]},keys:a,pushUnique:function(a,b){-1===y(a,b)&&a.push(b);return a},popFirst:function(a,b){var c=y(a,b);-1<c&&a.splice(c,1);return a},clone:p,randomUUID:b,escapeURIComponent:c,formatURI:f,inherits:w,InitializationError:i};q.JSV=A;u("./environments")})()},
-"uri/schemes/urn":function(q,u){var j=u("../uri"),d=j.URI,g=j.pctEncChar,k=/^urn\:((?:[0-9A-Za-z][0-9A-Za-z\-]{1,31}))$/,a=RegExp("^((?:[0-9A-Za-z][0-9A-Za-z\\-]{1,31}))\\:((?:(?:(?:\\%[0-9A-Fa-f]{2})|[0-9A-Za-z\\(\\)\\+\\,\\-\\.\\:\\=\\@\\;\\$\\_\\!\\*\\'\\/\\?\\#])+))$"),b=/^([^\:]+)\:(.*)/,c=/[\x00-\x20\\\"\&\<\>\[\]\^\`\{\|\}\~\x7F-\xFF]/g,f=/^[0-9A-Fa-f]{8}(?:\-[0-9A-Fa-f]{4}){3}\-[0-9A-Fa-f]{12}$/;d.SCHEMES.urn={parse:function(c,g){var f=c.path.match(a),h,j;f||(g.tolerant||c.errors.push("URN is not strictly valid."),
-f=c.path.match(b));f?(h="urn:"+f[1].toLowerCase(),(j=d.SCHEMES[h])||(j=d.SCHEMES[h]={}),j.serialize||(j.serialize=d.SCHEMES.urn.serialize),c.scheme=h,c.path=f[2],j.parse&&j.parse(c,g)):c.errors.push("URN can not be parsed.");return c},serialize:function(a,b){var d=a.scheme||b.scheme,f;d&&"urn"!==d&&((f=d.match(k))||(f=["urn:"+d,d]),a.scheme="urn",a.path=f[1]+":"+(a.path?a.path.replace(c,g):""));return a}};d.SCHEMES["urn:uuid"]={serialize:function(a,b){if(!b.tolerant&&(!a.path||!a.path.match(f)))a.scheme=
-void 0;return d.SCHEMES.urn.serialize(a,b)}}},"uri/uri":function(q,u){"undefined"===typeof q&&(q={});"function"!==typeof u&&(u=function(){return q});var j=function(a){for(var b=arguments[0],c=1,d=arguments[c];d;)b=b.slice(0,-1)+d.slice(1),d=arguments[++c];return b},d=function(a){return"(?:"+a+")"},g=j("[0-9]","[A-Fa-f]"),k=d("%"+g+g),a=j("[\\:\\/\\?\\#\\[\\]\\@]","[\\!\\$\\&\\'\\(\\)\\*\\+\\,\\;\\=]"),b=j("[A-Za-z]","[0-9]","[\\-\\.\\_\\~]"),c=d("[A-Za-z]"+j("[A-Za-z]","[0-9]","[\\+\\-\\.]")+"*"),
-f=d(d(k+"|"+j(b,"[\\!\\$\\&\\'\\(\\)\\*\\+\\,\\;\\=]","[\\:]"))+"*"),e=d(d("25[0-5]")+"|"+d("2[0-4][0-9]")+"|"+d("1[0-9][0-9]")+"|"+d("[1-9][0-9]")+"|[0-9]"),e=d(e+"\\."+e+"\\."+e+"\\."+e),i=d(g+"{1,4}");d(d(i+"\\:"+i)+"|"+e);var i=d(j(b,"[\\!\\$\\&\\'\\(\\)\\*\\+\\,\\;\\=]","[\\:]")+"+"),g=d("v"+g+"+\\."+j(b,"[\\!\\$\\&\\'\\(\\)\\*\\+\\,\\;\\=]","[\\:]")+"+"),g=d("\\["+d(i+"|"+g)+"\\]"),i=d(d(k+"|"+j(b,"[\\!\\$\\&\\'\\(\\)\\*\\+\\,\\;\\=]"))+"*"),e=d(g+"|"+e+"|"+i),g=d("[0-9]*"),l=d(d(f+"@")+"?"+
-e+d("\\:"+g)+"?"),h=d(k+"|"+j(b,"[\\!\\$\\&\\'\\(\\)\\*\\+\\,\\;\\=]","[\\:\\@]")),i=d(h+"*"),p=d(h+"+"),m=d(d(k+"|"+j(b,"[\\!\\$\\&\\'\\(\\)\\*\\+\\,\\;\\=]","[\\@]"))+"+"),i=d(d("\\/"+i)+"*"),t=d("\\/"+d(p+i)+"?"),m=d(m+i),p=d(p+i),w=d("");d(i+"|"+t+"|"+m+"|"+p+"|"+w);var n=d(d(h+"|[\\/\\?]")+"*"),h=d(d(h+"|[\\/\\?]")+"*"),C=d(d("\\/\\/"+l+i)+"|"+t+"|"+p+"|"+w),v=d(c+"\\:"+C+d("\\?"+n)+"?"+d("\\#"+h)+"?"),l=d(d("\\/\\/"+l+i)+"|"+t+"|"+m+"|"+w),l=d(l+d("\\?"+n)+"?"+d("\\#"+h)+"?");d(v+"|"+l);d(c+
-"\\:"+C+d("\\?"+n)+"?");var s=RegExp("^"+d("("+v+")|("+l+")")+"$"),z=RegExp("^("+c+")\\:"+d(d("\\/\\/("+d("("+f+")@")+"?("+e+")"+d("\\:("+g+")")+"?)")+"?("+i+"|"+t+"|"+p+"|"+w+")")+d("\\?("+n+")")+"?"+d("\\#("+h+")")+"?$"),A=RegExp("^(){0}"+d(d("\\/\\/("+d("("+f+")@")+"?("+e+")"+d("\\:("+g+")")+"?)")+"?("+i+"|"+t+"|"+m+"|"+w+")")+d("\\?("+n+")")+"?"+d("\\#("+h+")")+"?$");d(d("\\/\\/("+d("("+f+")@")+"?("+e+")"+d("\\:("+g+")")+"?)")+"?("+i+"|"+t+"|"+p+"|"+w+")");d("\\?("+n+")");d("\\#("+h+")");d("("+
-f+")@");d("\\:("+g+")");var y=RegExp(j("[^]","[A-Za-z]","[0-9]","[\\+\\-\\.]"),"g"),B=RegExp(j("[^\\%\\:]",b,"[\\!\\$\\&\\'\\(\\)\\*\\+\\,\\;\\=]"),"g"),L=RegExp(j("[^\\%]",b,"[\\!\\$\\&\\'\\(\\)\\*\\+\\,\\;\\=]"),"g"),M=RegExp(j("[^\\%\\/\\:\\@]",b,"[\\!\\$\\&\\'\\(\\)\\*\\+\\,\\;\\=]"),"g"),N=RegExp(j("[^\\%\\/\\@]",b,"[\\!\\$\\&\\'\\(\\)\\*\\+\\,\\;\\=]"),"g"),G=RegExp(j("[^\\%]",b,"[\\!\\$\\&\\'\\(\\)\\*\\+\\,\\;\\=]","[\\:\\@\\/\\?]"),"g"),O=RegExp(j("[^]",b,"[\\!\\$\\&\\'\\(\\)\\*\\+\\,\\;\\=]"),
-"g"),P=RegExp(b,"g");j("[^\\%]",b,a);var H=RegExp(k+"+","g"),Q=/^(?:([^:\/?#]+):)?(?:\/\/((?:([^\/?#@]*)@)?([^\/?#:]*)(?:\:(\d*))?))?([^?#]*)(?:\?([^#]*))?(?:#(.*))?/i,I=/^\.\.?\//,J=/^\/\.(\/|$)/,K=/^\/\.\.(\/|$)/,R=/^\/?.*?(?=\/|$)/,S=void 0==="".match(/(){0}/)[1],x=function(a){a=a.charCodeAt(0);return 128>a?"%"+a.toString(16).toUpperCase():127<a&&2048>a?"%"+(a>>6|192).toString(16).toUpperCase()+"%"+(a&63|128).toString(16).toUpperCase():"%"+(a>>12|224).toString(16).toUpperCase()+"%"+(a>>6&63|128).toString(16).toUpperCase()+
-"%"+(a&63|128).toString(16).toUpperCase()},T=function(a){for(var b="",c=0,d;c<a.length;)d=parseInt(a.substr(c+1,2),16),128>d?(d=String.fromCharCode(d),b=d.match(P)?b+d:b+a.substr(c,3),c+=3):191<d&&224>d?(b+=a.substr(c,6),c+=6):(b+=a.substr(c,9),c+=9);return b},E=function(a){for(var b="",c=0,d,e,f;c<a.length;)d=parseInt(a.substr(c+1,2),16),128>d?(b+=String.fromCharCode(d),c+=3):191<d&&224>d?(e=parseInt(a.substr(c+4,2),16),b+=String.fromCharCode((d&31)<<6|e&63),c+=6):(e=parseInt(a.substr(c+4,2),16),
-f=parseInt(a.substr(c+7,2),16),b+=String.fromCharCode((d&15)<<12|(e&63)<<6|f&63),c+=9);return b},F=function(a){return void 0===a?"undefined":null===a?"null":Object.prototype.toString.call(a).split(" ").pop().split("]").shift().toLowerCase()},D=function(){this.errors=[]},r=q;D.prototype={scheme:void 0,authority:void 0,userinfo:void 0,host:void 0,port:void 0,path:void 0,query:void 0,fragment:void 0,reference:void 0,errors:void 0};r.SCHEMES={};r.parse=function(a,b){var c,d=new D,a=a?a.toString():"",
-b=b||{};"suffix"===b.reference&&(a=(b.scheme?b.scheme+":":"")+"//"+a);(c=a.match(s))&&(c=c[1]?a.match(z):a.match(A));c||(b.tolerant||d.errors.push("URI is not strictly valid."),c=a.match(Q));c?(S?(d.scheme=c[1],d.authority=c[2],d.userinfo=c[3],d.host=c[4],d.port=parseInt(c[5],10),d.path=c[6]||"",d.query=c[7],d.fragment=c[8],isNaN(d.port)&&(d.port=c[5])):(d.scheme=c[1]||void 0,d.authority=-1!==a.indexOf("//")?c[2]:void 0,d.userinfo=-1!==a.indexOf("@")?c[3]:void 0,d.host=-1!==a.indexOf("//")?c[4]:void 0,
-d.port=parseInt(c[5],10),d.path=c[6]||"",d.query=-1!==a.indexOf("?")?c[7]:void 0,d.fragment=-1!==a.indexOf("#")?c[8]:void 0,isNaN(d.port)&&(d.port=a.match(/\/\/.*\:(?:\/|\?|\#|$)/)?c[4]:void 0)),d.reference=!d.scheme&&!d.authority&&!d.path&&!d.query?"same-document":d.scheme?d.fragment?"uri":"absolute":"relative",b.reference&&("suffix"!==b.reference&&b.reference!==d.reference)&&d.errors.push("URI is not a "+b.reference+" reference."),(c=r.SCHEMES[(d.scheme||b.scheme||"").toLowerCase()])&&c.parse&&
-c.parse(d,b)):d.errors.push("URI can not be parsed.");return d};r._recomposeAuthority=function(a){var b=[];if(void 0!==a.userinfo||void 0!==a.host||"number"===typeof a.port)void 0!==a.userinfo&&(b.push(a.userinfo.toString().replace(B,x)),b.push("@")),void 0!==a.host&&b.push(a.host.toString().toLowerCase().replace(L,x)),"number"===typeof a.port&&(b.push(":"),b.push(a.port.toString(10)));return b.length?b.join(""):void 0};r.removeDotSegments=function(a){for(var b=[],c;a.length;)a.match(I)?a=a.replace(I,
-""):a.match(J)?a=a.replace(J,"/"):a.match(K)?(a=a.replace(K,"/"),b.pop()):"."===a||".."===a?a="":(c=a.match(R)[0],a=a.slice(c.length),b.push(c));return b.join("")};r.serialize=function(a,b){var c=[],d,b=b||{};(d=r.SCHEMES[a.scheme||b.scheme])&&d.serialize&&d.serialize(a,b);"suffix"!==b.reference&&a.scheme&&(c.push(a.scheme.toString().toLowerCase().replace(y,"")),c.push(":"));a.authority=r._recomposeAuthority(a);void 0!==a.authority&&("suffix"!==b.reference&&c.push("//"),c.push(a.authority),a.path&&
-"/"!==a.path.charAt(0)&&c.push("/"));a.path&&(d=r.removeDotSegments(a.path.toString().replace(/%2E/ig,".")),d=a.scheme?d.replace(M,x):d.replace(N,x),void 0===a.authority&&(d=d.replace(/^\/\//,"/%2F")),c.push(d));a.query&&(c.push("?"),c.push(a.query.toString().replace(G,x)));a.fragment&&(c.push("#"),c.push(a.fragment.toString().replace(G,x)));return c.join("").replace(H,T).replace(/%[0-9A-Fa-f]{2}/g,function(a){return a.toUpperCase()})};r.resolveComponents=function(a,b,c,d){var e=new D;d||(a=r.parse(r.serialize(a,
-c),c),b=r.parse(r.serialize(b,c),c));c=c||{};!c.tolerant&&b.scheme?(e.scheme=b.scheme,e.authority=b.authority,e.userinfo=b.userinfo,e.host=b.host,e.port=b.port,e.path=r.removeDotSegments(b.path),e.query=b.query):(void 0!==b.authority?(e.authority=b.authority,e.userinfo=b.userinfo,e.host=b.host,e.port=b.port,e.path=r.removeDotSegments(b.path),e.query=b.query):(b.path?("/"===b.path.charAt(0)?e.path=r.removeDotSegments(b.path):(e.path=void 0!==a.authority&&!a.path?"/"+b.path:a.path?a.path.slice(0,a.path.lastIndexOf("/")+
-1)+b.path:b.path,e.path=r.removeDotSegments(e.path)),e.query=b.query):(e.path=a.path,e.query=void 0!==b.query?b.query:a.query),e.authority=a.authority,e.userinfo=a.userinfo,e.host=a.host,e.port=a.port),e.scheme=a.scheme);e.fragment=b.fragment;return e};r.resolve=function(a,b,c){return r.serialize(r.resolveComponents(r.parse(a,c),r.parse(b,c),c,!0),c)};r.normalize=function(a,b){return"string"===typeof a?r.serialize(r.parse(a,b),b):"object"===F(a)?r.parse(r.serialize(a,b),b):a};r.equal=function(a,b,
-c){"string"===typeof a?a=r.serialize(r.parse(a,c),c):"object"===F(a)&&(a=r.serialize(a,c));"string"===typeof b?b=r.serialize(r.parse(b,c),c):"object"===F(b)&&(b=r.serialize(b,c));return a===b};r.escapeComponent=function(a){return a&&a.toString().replace(O,x)};r.unescapeComponent=function(a){return a&&a.toString().replace(H,E)};q.pctEncChar=x;q.pctDecChars=E;q.Components=D;q.URI=r;q.pctEncChar=x;q.pctDecChars=E;q.Components=D;q.URI={SCHEMES:r.SCHEMES,parse:r.parse,removeDotSegments:r.removeDotSegments,
-serialize:r.serialize,resolveComponents:r.resolveComponents,resolve:r.resolve,normalize:r.normalize,equal:r.equal,escapeComponent:r.escapeComponent,unescapeComponent:r.unescapeComponent}},shim:function(q,u){q.validate=function(j,d,g,k){var a,b,c;a=u("jsv").JSV;j=j?a.createEnvironment(j):a.createEnvironment();for(b in d)d.hasOwnProperty(b)&&(c=d[b],a=JSON.parse(c.data),c=c.schema||void 0,j.createSchema(a,c,b));a=JSON.parse(g);d=JSON.parse(k);return{errors:j.validate(a,d).errors}}}});
+ * Copyright 2010 Gary Court. All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, are
+ * permitted provided that the following conditions are met:
+ * 
+ *    1. Redistributions of source code must retain the above copyright notice, this list of
+ *       conditions and the following disclaimer.
+ * 
+ *    2. Redistributions in binary form must reproduce the above copyright notice, this list
+ *       of conditions and the following disclaimer in the documentation and/or other materials
+ *       provided with the distribution.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY GARY COURT ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL GARY COURT OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * 
+ * The views and conclusions contained in the software and documentation are those of the
+ * authors and should not be interpreted as representing official policies, either expressed
+ * or implied, of Gary Court or the JSON Schema specification.
+ */
+
+/*jslint white: true, sub: true, onevar: true, undef: true, eqeqeq: true, newcap: true, immed: true, indent: 4 */
+/*global require */
+
+(function () {
+	var O = {},
+		JSV = require('./jsv').JSV,
+		ENVIRONMENT,
+		TYPE_VALIDATORS,
+		SCHEMA,
+		HYPERSCHEMA,
+		LINKS;
+	
+	TYPE_VALIDATORS = {
+		"string" : function (instance, report) {
+			return instance.getType() === "string";
+		},
+		
+		"number" : function (instance, report) {
+			return instance.getType() === "number";
+		},
+		
+		"integer" : function (instance, report) {
+			return instance.getType() === "number" && instance.getValue() % 1 === 0;
+		},
+		
+		"boolean" : function (instance, report) {
+			return instance.getType() === "boolean";
+		},
+		
+		"object" : function (instance, report) {
+			return instance.getType() === "object";
+		},
+		
+		"array" : function (instance, report) {
+			return instance.getType() === "array";
+		},
+		
+		"null" : function (instance, report) {
+			return instance.getType() === "null";
+		},
+		
+		"any" : function (instance, report) {
+			return true;
+		}
+	};
+	
+	ENVIRONMENT = new JSV.Environment();
+	ENVIRONMENT.setOption("defaultFragmentDelimiter", ".");
+	ENVIRONMENT.setOption("defaultSchemaURI", "http://json-schema.org/schema#");  //updated later
+	
+	SCHEMA = ENVIRONMENT.createSchema({
+		"$schema" : "http://json-schema.org/hyper-schema#",
+		"id" : "http://json-schema.org/schema#",
+		"type" : "object",
+		
+		"properties" : {
+			"type" : {
+				"type" : ["string", "array"],
+				"items" : {
+					"type" : ["string", {"$ref" : "#"}]
+				},
+				"optional" : true,
+				"uniqueItems" : true,
+				"default" : "any",
+				
+				"parser" : function (instance, self) {
+					var parser;
+					
+					if (instance.getType() === "string") {
+						return instance.getValue();
+					} else if (instance.getType() === "object") {
+						return instance.getEnvironment().createSchema(
+							instance, 
+							self.getEnvironment().findSchema(self.resolveURI("#"))
+						);
+					} else if (instance.getType() === "array") {
+						parser = self.getValueOfProperty("parser");
+						return JSV.mapArray(instance.getProperties(), function (prop) {
+							return parser(prop, self);
+						});
+					}
+					//else
+					return "any";
+				},
+			
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var requiredTypes = JSV.toArray(schema.getAttribute("type")),
+						x, xl, type, subreport, typeValidators;
+					
+					//for instances that are required to be a certain type
+					if (instance.getType() !== "undefined" && requiredTypes && requiredTypes.length) {
+						typeValidators = self.getValueOfProperty("typeValidators") || {};
+						
+						//ensure that type matches for at least one of the required types
+						for (x = 0, xl = requiredTypes.length; x < xl; ++x) {
+							type = requiredTypes[x];
+							if (JSV.isJSONSchema(type)) {
+								subreport = JSV.createObject(report);
+								subreport.errors = [];
+								subreport.validated = JSV.clone(report.validated);
+								if (type.validate(instance, subreport, parent, parentSchema, name).errors.length === 0) {
+									return true;  //instance matches this schema
+								}
+							} else {
+								if (typeValidators[type] !== O[type] && typeof typeValidators[type] === "function") {
+									if (typeValidators[type](instance, report)) {
+										return true;  //type is valid
+									}
+								} else {
+									return true;  //unknown types are assumed valid
+								}
+							}
+						}
+						
+						//if we get to this point, type is invalid
+						report.addError(instance, schema, "type", "Instance is not a required type", requiredTypes);
+						return false;
+					}
+					//else, anything is allowed if no type is specified
+					return true;
+				},
+				
+				"typeValidators" : TYPE_VALIDATORS
+			},
+			
+			"properties" : {
+				"type" : "object",
+				"additionalProperties" : {"$ref" : "#"},
+				"optional" : true,
+				"default" : {},
+				
+				"parser" : function (instance, self, arg) {
+					var env = instance.getEnvironment(),
+						selfEnv = self.getEnvironment();
+					if (instance.getType() === "object") {
+						if (arg) {
+							return env.createSchema(instance.getProperty(arg), selfEnv.findSchema(self.resolveURI("#")));
+						} else {
+							return JSV.mapObject(instance.getProperties(), function (instance) {
+								return env.createSchema(instance, selfEnv.findSchema(self.resolveURI("#")));
+							});
+						}
+					}
+					//else
+					return {};
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var propertySchemas, key;
+					//this attribute is for object type instances only
+					if (instance.getType() === "object") {
+						//for each property defined in the schema
+						propertySchemas = schema.getAttribute("properties");
+						for (key in propertySchemas) {
+							if (propertySchemas[key] !== O[key] && propertySchemas[key]) {
+								//ensure that instance property is valid
+								propertySchemas[key].validate(instance.getProperty(key), report, instance, schema, key);
+							}
+						}
+					}
+				}
+			},
+			
+			"items" : {
+				"type" : [{"$ref" : "#"}, "array"],
+				"items" : {"$ref" : "#"},
+				"optional" : true,
+				"default" : {},
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "object") {
+						return instance.getEnvironment().createSchema(instance, self.getEnvironment().findSchema(self.resolveURI("#")));
+					} else if (instance.getType() === "array") {
+						return JSV.mapArray(instance.getProperties(), function (instance) {
+							return instance.getEnvironment().createSchema(instance, self.getEnvironment().findSchema(self.resolveURI("#")));
+						});
+					}
+					//else
+					return instance.getEnvironment().createEmptySchema();
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var properties, items, x, xl, itemSchema, additionalProperties;
+					
+					if (instance.getType() === "array") {
+						properties = instance.getProperties();
+						items = schema.getAttribute("items");
+						additionalProperties = schema.getAttribute("additionalProperties");
+						
+						if (JSV.typeOf(items) === "array") {
+							for (x = 0, xl = properties.length; x < xl; ++x) {
+								itemSchema = items[x] || additionalProperties;
+								if (itemSchema !== false) {
+									itemSchema.validate(properties[x], report, instance, schema, x);
+								} else {
+									report.addError(instance, schema, "additionalProperties", "Additional items are not allowed", itemSchema);
+								}
+							}
+						} else {
+							itemSchema = items || additionalProperties;
+							for (x = 0, xl = properties.length; x < xl; ++x) {
+								itemSchema.validate(properties[x], report, instance, schema, x);
+							}
+						}
+					}
+				}
+			},
+			
+			"optional" : {
+				"type" : "boolean",
+				"optional" : true,
+				"default" : false,
+				
+				"parser" : function (instance, self) {
+					return !!instance.getValue();
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					if (instance.getType() === "undefined" && !schema.getAttribute("optional")) {
+						report.addError(instance, schema, "optional", "Property is required", false);
+					}
+				},
+				
+				"validationRequired" : true
+			},
+			
+			"additionalProperties" : {
+				"type" : [{"$ref" : "#"}, "boolean"],
+				"optional" : true,
+				"default" : {},
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "object") {
+						return instance.getEnvironment().createSchema(instance, self.getEnvironment().findSchema(self.resolveURI("#")));
+					} else if (instance.getType() === "boolean" && instance.getValue() === false) {
+						return false;
+					}
+					//else
+					return instance.getEnvironment().createEmptySchema();
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var additionalProperties, propertySchemas, properties, key;
+					//we only need to check against object types as arrays do their own checking on this property
+					if (instance.getType() === "object") {
+						additionalProperties = schema.getAttribute("additionalProperties");
+						propertySchemas = schema.getAttribute("properties") || {};
+						properties = instance.getProperties();
+						for (key in properties) {
+							if (properties[key] !== O[key] && properties[key] && !propertySchemas[key]) {
+								if (JSV.isJSONSchema(additionalProperties)) {
+									additionalProperties.validate(properties[key], report, instance, schema, key);
+								} else if (additionalProperties === false) {
+									report.addError(instance, schema, "additionalProperties", "Additional properties are not allowed", additionalProperties);
+								}
+							}
+						}
+					}
+				}
+			},
+			
+			"requires" : {
+				"type" : ["string", {"$ref" : "#"}],
+				"optional" : true,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "string") {
+						return instance.getValue();
+					} else if (instance.getType() === "object") {
+						return instance.getEnvironment().createSchema(instance, self.getEnvironment().findSchema(self.resolveURI("#")));
+					}
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var requires;
+					if (instance.getType() !== "undefined" && parent && parent.getType() !== "undefined") {
+						requires = schema.getAttribute("requires");
+						if (typeof requires === "string") {
+							if (parent.getProperty(requires).getType() === "undefined") {
+								report.addError(instance, schema, "requires", 'Property requires sibling property "' + requires + '"', requires);
+							}
+						} else if (JSV.isJSONSchema(requires)) {
+							requires.validate(parent, report);  //WATCH: A "requires" schema does not support the "requires" attribute
+						}
+					}
+				}
+			},
+			
+			"minimum" : {
+				"type" : "number",
+				"optional" : true,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "number") {
+						return instance.getValue();
+					}
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var minimum, minimumCanEqual;
+					if (instance.getType() === "number") {
+						minimum = schema.getAttribute("minimum");
+						minimumCanEqual = schema.getAttribute("minimumCanEqual");
+						if (typeof minimum === "number" && (instance.getValue() < minimum || (minimumCanEqual === false && instance.getValue() === minimum))) {
+							report.addError(instance, schema, "minimum", "Number is less than the required minimum value", minimum);
+						}
+					}
+				}
+			},
+			
+			"maximum" : {
+				"type" : "number",
+				"optional" : true,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "number") {
+						return instance.getValue();
+					}
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var maximum, maximumCanEqual;
+					if (instance.getType() === "number") {
+						maximum = schema.getAttribute("maximum");
+						maximumCanEqual = schema.getAttribute("maximumCanEqual");
+						if (typeof maximum === "number" && (instance.getValue() > maximum || (maximumCanEqual === false && instance.getValue() === maximum))) {
+							report.addError(instance, schema, "maximum", "Number is greater than the required maximum value", maximum);
+						}
+					}
+				}
+			},
+			
+			"minimumCanEqual" : {
+				"type" : "boolean",
+				"optional" : true,
+				"requires" : "minimum",
+				"default" : true,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "boolean") {
+						return instance.getValue();
+					}
+					//else
+					return true;
+				}
+			},
+			
+			"maximumCanEqual" : {
+				"type" : "boolean",
+				"optional" : true,
+				"requires" : "maximum",
+				"default" : true,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "boolean") {
+						return instance.getValue();
+					}
+					//else
+					return true;
+				}
+			},
+			
+			"minItems" : {
+				"type" : "integer",
+				"optional" : true,
+				"minimum" : 0,
+				"default" : 0,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "number") {
+						return instance.getValue();
+					}
+					//else
+					return 0;
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var minItems;
+					if (instance.getType() === "array") {
+						minItems = schema.getAttribute("minItems");
+						if (typeof minItems === "number" && instance.getProperties().length < minItems) {
+							report.addError(instance, schema, "minItems", "The number of items is less than the required minimum", minItems);
+						}
+					}
+				}
+			},
+			
+			"maxItems" : {
+				"type" : "integer",
+				"optional" : true,
+				"minimum" : 0,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "number") {
+						return instance.getValue();
+					}
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var maxItems;
+					if (instance.getType() === "array") {
+						maxItems = schema.getAttribute("maxItems");
+						if (typeof maxItems === "number" && instance.getProperties().length > maxItems) {
+							report.addError(instance, schema, "maxItems", "The number of items is greater than the required maximum", maxItems);
+						}
+					}
+				}
+			},
+			
+			"pattern" : {
+				"type" : "string",
+				"optional" : true,
+				"format" : "regex",
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "string") {
+						return instance.getValue();
+					}
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var pattern;
+					try {
+						pattern = new RegExp(schema.getAttribute("pattern"));
+						if (instance.getType() === "string" && pattern && !pattern.test(instance.getValue())) {
+							report.addError(instance, schema, "pattern", "String does not match pattern", pattern.toString());
+						}
+					} catch (e) {
+						report.addError(instance, schema, "pattern", "Invalid pattern", e);
+					}
+				}
+			},
+			
+			"minLength" : {
+				"type" : "integer",
+				"optional" : true,
+				"minimum" : 0,
+				"default" : 0,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "number") {
+						return instance.getValue();
+					}
+					//else
+					return 0;
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var minLength;
+					if (instance.getType() === "string") {
+						minLength = schema.getAttribute("minLength");
+						if (typeof minLength === "number" && instance.getValue().length < minLength) {
+							report.addError(instance, schema, "minLength", "String is less than the required minimum length", minLength);
+						}
+					}
+				}
+			},
+			
+			"maxLength" : {
+				"type" : "integer",
+				"optional" : true,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "number") {
+						return instance.getValue();
+					}
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var maxLength;
+					if (instance.getType() === "string") {
+						maxLength = schema.getAttribute("maxLength");
+						if (typeof maxLength === "number" && instance.getValue().length > maxLength) {
+							report.addError(instance, schema, "maxLength", "String is greater than the required maximum length", maxLength);
+						}
+					}
+				}
+			},
+			
+			"enum" : {
+				"type" : "array",
+				"optional" : true,
+				"minItems" : 1,
+				"uniqueItems" : true,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "array") {
+						return instance.getValue();
+					}
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var enums, x, xl;
+					if (instance.getType() !== "undefined") {
+						enums = schema.getAttribute("enum");
+						if (enums) {
+							for (x = 0, xl = enums.length; x < xl; ++x) {
+								if (instance.equals(enums[x])) {
+									return true;
+								}
+							}
+							report.addError(instance, schema, "enum", "Instance is not one of the possible values", enums);
+						}
+					}
+				}
+			},
+			
+			"title" : {
+				"type" : "string",
+				"optional" : true
+			},
+			
+			"description" : {
+				"type" : "string",
+				"optional" : true
+			},
+			
+			"format" : {
+				"type" : "string",
+				"optional" : true,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "string") {
+						return instance.getValue();
+					}
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var format, formatValidators;
+					if (instance.getType() === "string") {
+						format = schema.getAttribute("format");
+						formatValidators = self.getValueOfProperty("formatValidators");
+						if (typeof format === "string" && formatValidators[format] !== O[format] && typeof formatValidators[format] === "function" && !formatValidators[format].call(this, instance, report)) {
+							report.addError(instance, schema, "format", "String is not in the required format", format);
+						}
+					}
+				},
+				
+				"formatValidators" : {}
+			},
+			
+			"contentEncoding" : {
+				"type" : "string",
+				"optional" : true
+			},
+			
+			"default" : {
+				"type" : "any",
+				"optional" : true
+			},
+			
+			"maxDecimal" : {
+				"type" : "integer",
+				"optional" : true,
+				"minimum" : 0,
+								
+				"parser" : function (instance, self) {
+					if (instance.getType() === "number") {
+						return instance.getValue();
+					}
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var maxDecimal, decimals;
+					if (instance.getType() === "number") {
+						maxDecimal = schema.getAttribute("maxDecimal");
+						if (typeof maxDecimal === "number") {
+							decimals = instance.getValue().toString(10).split('.')[1];
+							if (decimals && decimals.length > maxDecimal) {
+								report.addError(instance, schema, "maxDecimal", "The number of decimal places is greater than the allowed maximum", maxDecimal);
+							}
+						}
+					}
+				}
+			},
+			
+			"disallow" : {
+				"type" : ["string", "array"],
+				"items" : {"type" : "string"},
+				"optional" : true,
+				"uniqueItems" : true,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "string" || instance.getType() === "array") {
+						return instance.getValue();
+					}
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var disallowedTypes = JSV.toArray(schema.getAttribute("disallow")),
+						x, xl, key, typeValidators;
+					
+					//for instances that are required to be a certain type
+					if (instance.getType() !== "undefined" && disallowedTypes && disallowedTypes.length) {
+						typeValidators = self.getValueOfProperty("typeValidators") || {};
+						
+						//ensure that type matches for at least one of the required types
+						for (x = 0, xl = disallowedTypes.length; x < xl; ++x) {
+							key = disallowedTypes[x];
+							if (typeValidators[key] !== O[key] && typeof typeValidators[key] === "function") {
+								if (typeValidators[key](instance, report)) {
+									report.addError(instance, schema, "disallow", "Instance is a disallowed type", disallowedTypes);
+									return false;
+								}
+							} 
+							/*
+							else {
+								report.addError(instance, schema, "disallow", "Instance may be a disallowed type", disallowedTypes);
+								return false;
+							}
+							*/
+						}
+						
+						//if we get to this point, type is valid
+						return true;
+					}
+					//else, everything is allowed if no disallowed types are specified
+					return true;
+				},
+				
+				"typeValidators" : TYPE_VALIDATORS
+			},
+		
+			"extends" : {
+				"type" : [{"$ref" : "#"}, "array"],
+				"items" : {"$ref" : "#"},
+				"optional" : true,
+				"default" : {},
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "object") {
+						return instance.getEnvironment().createSchema(instance, self.getEnvironment().findSchema(self.resolveURI("#")));
+					} else if (instance.getType() === "array") {
+						return JSV.mapArray(instance.getProperties(), function (instance) {
+							return instance.getEnvironment().createSchema(instance, self.getEnvironment().findSchema(self.resolveURI("#")));
+						});
+					}
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var extensions = schema.getAttribute("extends"), x, xl;
+					if (extensions) {
+						if (JSV.isJSONSchema(extensions)) {
+							extensions.validate(instance, report, parent, parentSchema, name);
+						} else if (JSV.typeOf(extensions) === "array") {
+							for (x = 0, xl = extensions.length; x < xl; ++x) {
+								extensions[x].validate(instance, report, parent, parentSchema, name);
+							}
+						}
+					}
+				}
+			}
+		},
+		
+		"optional" : true,
+		"default" : {},
+		"fragmentResolution" : "dot-delimited",
+		
+		"parser" : function (instance, self) {
+			if (instance.getType() === "object") {
+				return instance.getEnvironment().createSchema(instance, self);
+			}
+		},
+		
+		"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+			var propNames = schema.getPropertyNames(), 
+				x, xl,
+				attributeSchemas = self.getAttribute("properties"),
+				validator;
+			
+			for (x in attributeSchemas) {
+				if (attributeSchemas[x] !== O[x] && attributeSchemas[x].getValueOfProperty("validationRequired")) {
+					JSV.pushUnique(propNames, x);
+				}
+			}
+			
+			for (x = 0, xl = propNames.length; x < xl; ++x) {
+				if (attributeSchemas[propNames[x]] !== O[propNames[x]]) {
+					validator = attributeSchemas[propNames[x]].getValueOfProperty("validator");
+					if (typeof validator === "function") {
+						validator(instance, schema, attributeSchemas[propNames[x]], report, parent, parentSchema, name);
+					}
+				}
+			}
+		},
+				
+		"initializer" : function (instance) {
+			var link, extension, extended;
+			
+			//if there is a link to a different schema, set reference
+			link = instance._schema.getLink("describedby", instance);
+			if (link && instance._schema._uri !== link) {
+				instance.setReference("describedby", link);
+			}
+			
+			//if instance has a URI link to itself, update it's own URI
+			link = instance._schema.getLink("self", instance);
+			if (JSV.typeOf(link) === "string") {
+				instance._uri = JSV.formatURI(link);
+			}
+			
+			//if there is a link to the full representation, set reference
+			link = instance._schema.getLink("full", instance);
+			if (link && instance._uri !== link) {
+				instance.setReference("full", link);
+			}
+			
+			//extend schema
+			extension = instance.getAttribute("extends");
+			if (JSV.isJSONSchema(extension)) {
+				extended = JSV.inherits(extension, instance, true);
+				instance = instance._env.createSchema(extended, instance._schema, instance._uri);
+			}
+			
+			return instance;
+		}
+	}, true, "http://json-schema.org/schema#");
+	
+	HYPERSCHEMA = ENVIRONMENT.createSchema(JSV.inherits(SCHEMA, ENVIRONMENT.createSchema({
+		"$schema" : "http://json-schema.org/hyper-schema#",
+		"id" : "http://json-schema.org/hyper-schema#",
+	
+		"properties" : {
+			"links" : {
+				"type" : "array",
+				"items" : {"$ref" : "links#"},
+				"optional" : true,
+				
+				"parser" : function (instance, self, arg) {
+					var links,
+						linkSchemaURI = self.getValueOfProperty("items")["$ref"],
+						linkSchema = self.getEnvironment().findSchema(linkSchemaURI),
+						linkParser = linkSchema && linkSchema.getValueOfProperty("parser");
+					arg = JSV.toArray(arg);
+					
+					if (typeof linkParser === "function") {
+						links = JSV.mapArray(instance.getProperties(), function (link) {
+							return linkParser(link, linkSchema);
+						});
+					} else {
+						links = JSV.toArray(instance.getValue());
+					}
+					
+					if (arg[0]) {
+						links = JSV.filterArray(links, function (link) {
+							return link["rel"] === arg[0];
+						});
+					}
+					
+					if (arg[1]) {
+						links = JSV.mapArray(links, function (link) {
+							var instance = arg[1],
+								href = link["href"];
+							href = href.replace(/\{(.+)\}/g, function (str, p1, offset, s) {
+								var value; 
+								if (p1 === "-this") {
+									value = instance.getValue();
+								} else {
+									value = instance.getValueOfProperty(p1);
+								}
+								return value !== undefined ? String(value) : "";
+							});
+							return href ? JSV.formatURI(instance.resolveURI(href)) : href;
+						});
+					}
+					
+					return links;
+				}
+			},
+			
+			"fragmentResolution" : {
+				"type" : "string",
+				"optional" : true,
+				"default" : "dot-delimited"
+			},
+			
+			"root" : {
+				"type" : "boolean",
+				"optional" : true,
+				"default" : false
+			},
+			
+			"readonly" : {
+				"type" : "boolean",
+				"optional" : true,
+				"default" : false
+			},
+			
+			"pathStart" : {
+				"type" : "string",
+				"optional" : true,
+				"format" : "uri",
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var pathStart;
+					if (instance.getType() !== "undefined") {
+						pathStart = schema.getAttribute("pathStart");
+						if (typeof pathStart === "string") {
+							//TODO: Find out what pathStart is relative to
+							if (instance.getURI().indexOf(pathStart) !== 0) {
+								report.addError(instance, schema, "pathStart", "Instance's URI does not start with " + pathStart, pathStart);
+							}
+						}
+					}
+				}
+			},
+			
+			"mediaType" : {
+				"type" : "string",
+				"optional" : true,
+				"format" : "media-type"
+			},
+			
+			"alternate" : {
+				"type" : "array",
+				"items" : {"$ref" : "#"},
+				"optional" : true
+			}
+		},
+		
+		"links" : [
+			{
+				"href" : "{$ref}",
+				"rel" : "full"
+			},
+			
+			{
+				"href" : "{$schema}",
+				"rel" : "describedby"
+			},
+			
+			{
+				"href" : "{id}",
+				"rel" : "self"
+			}
+		]//,
+		
+		//not needed as JSV.inherits does the job for us
+		//"extends" : {"$ref" : "http://json-schema.org/schema#"}
+	}, SCHEMA), true), true, "http://json-schema.org/hyper-schema#");
+	
+	ENVIRONMENT.setOption("defaultSchemaURI", "http://json-schema.org/hyper-schema#");
+	
+	LINKS = ENVIRONMENT.createSchema({
+		"$schema" : "http://json-schema.org/hyper-schema#",
+		"id" : "http://json-schema.org/links#",
+		"type" : "object",
+		
+		"properties" : {
+			"href" : {
+				"type" : "string"
+			},
+			
+			"rel" : {
+				"type" : "string"
+			},
+			
+			"method" : {
+				"type" : "string",
+				"default" : "GET",
+				"optional" : true
+			},
+			
+			"enctype" : {
+				"type" : "string",
+				"requires" : "method",
+				"optional" : true
+			},
+			
+			"properties" : {
+				"type" : "object",
+				"additionalProperties" : {"$ref" : "hyper-schema#"},
+				"optional" : true,
+				
+				"parser" : function (instance, self, arg) {
+					var env = instance.getEnvironment(),
+						selfEnv = self.getEnvironment(),
+						additionalPropertiesSchemaURI = self.getValueOfProperty("additionalProperties")["$ref"];
+					if (instance.getType() === "object") {
+						if (arg) {
+							return env.createSchema(instance.getProperty(arg), selfEnv.findSchema(self.resolveURI(additionalPropertiesSchemaURI)));
+						} else {
+							return JSV.mapObject(instance.getProperties(), function (instance) {
+								return env.createSchema(instance, selfEnv.findSchema(self.resolveURI(additionalPropertiesSchemaURI)));
+							});
+						}
+					}
+				}
+			}
+		},
+		
+		"parser" : function (instance, self) {
+			var selfProperties = self.getProperty("properties");
+			if (instance.getType() === "object") {
+				return JSV.mapObject(instance.getProperties(), function (property, key) {
+					var propertySchema = selfProperties.getProperty(key),
+						parser = propertySchema && propertySchema.getValueOfProperty("parser");
+					if (typeof parser === "function") {
+						return parser(property, propertySchema);
+					}
+					//else
+					return property.getValue();
+				});
+			}
+			return instance.getValue();
+		}
+	}, HYPERSCHEMA, "http://json-schema.org/links#");
+	
+	JSV.registerEnvironment("json-schema-draft-00", ENVIRONMENT);
+	JSV.registerEnvironment("json-schema-draft-01", JSV.createEnvironment("json-schema-draft-00"));
+	
+	if (!JSV.getDefaultEnvironmentID()) {
+		JSV.setDefaultEnvironmentID("json-schema-draft-01");
+	}
+	
+}());}, "json-schema-draft-02": function(exports, require, module) {/**
+ * json-schema-draft-02 Environment
+ * 
+ * @fileOverview Implementation of the second revision of the JSON Schema specification draft.
+ * @author <a href="mailto:gary.court@gmail.com">Gary Court</a>
+ * @version 1.7.1
+ * @see http://github.com/garycourt/JSV
+ */
+
+/*
+ * Copyright 2010 Gary Court. All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, are
+ * permitted provided that the following conditions are met:
+ * 
+ *    1. Redistributions of source code must retain the above copyright notice, this list of
+ *       conditions and the following disclaimer.
+ * 
+ *    2. Redistributions in binary form must reproduce the above copyright notice, this list
+ *       of conditions and the following disclaimer in the documentation and/or other materials
+ *       provided with the distribution.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY GARY COURT ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL GARY COURT OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * 
+ * The views and conclusions contained in the software and documentation are those of the
+ * authors and should not be interpreted as representing official policies, either expressed
+ * or implied, of Gary Court or the JSON Schema specification.
+ */
+
+/*jslint white: true, sub: true, onevar: true, undef: true, eqeqeq: true, newcap: true, immed: true, indent: 4 */
+/*global require */
+
+(function () {
+	var O = {},
+		JSV = require('./jsv').JSV,
+		ENVIRONMENT,
+		TYPE_VALIDATORS,
+		SCHEMA,
+		HYPERSCHEMA,
+		LINKS;
+	
+	TYPE_VALIDATORS = {
+		"string" : function (instance, report) {
+			return instance.getType() === "string";
+		},
+		
+		"number" : function (instance, report) {
+			return instance.getType() === "number";
+		},
+		
+		"integer" : function (instance, report) {
+			return instance.getType() === "number" && instance.getValue() % 1 === 0;
+		},
+		
+		"boolean" : function (instance, report) {
+			return instance.getType() === "boolean";
+		},
+		
+		"object" : function (instance, report) {
+			return instance.getType() === "object";
+		},
+		
+		"array" : function (instance, report) {
+			return instance.getType() === "array";
+		},
+		
+		"null" : function (instance, report) {
+			return instance.getType() === "null";
+		},
+		
+		"any" : function (instance, report) {
+			return true;
+		}
+	};
+	
+	ENVIRONMENT = new JSV.Environment();
+	ENVIRONMENT.setOption("defaultFragmentDelimiter", "/");
+	ENVIRONMENT.setOption("defaultSchemaURI", "http://json-schema.org/schema#");  //updated later
+	
+	SCHEMA = ENVIRONMENT.createSchema({
+		"$schema" : "http://json-schema.org/hyper-schema#",
+		"id" : "http://json-schema.org/schema#",
+		"type" : "object",
+		
+		"properties" : {
+			"type" : {
+				"type" : ["string", "array"],
+				"items" : {
+					"type" : ["string", {"$ref" : "#"}]
+				},
+				"optional" : true,
+				"uniqueItems" : true,
+				"default" : "any",
+				
+				"parser" : function (instance, self) {
+					var parser;
+					
+					if (instance.getType() === "string") {
+						return instance.getValue();
+					} else if (instance.getType() === "object") {
+						return instance.getEnvironment().createSchema(
+							instance, 
+							self.getEnvironment().findSchema(self.resolveURI("#"))
+						);
+					} else if (instance.getType() === "array") {
+						parser = self.getValueOfProperty("parser");
+						return JSV.mapArray(instance.getProperties(), function (prop) {
+							return parser(prop, self);
+						});
+					}
+					//else
+					return "any";
+				},
+			
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var requiredTypes = JSV.toArray(schema.getAttribute("type")),
+						x, xl, type, subreport, typeValidators;
+					
+					//for instances that are required to be a certain type
+					if (instance.getType() !== "undefined" && requiredTypes && requiredTypes.length) {
+						typeValidators = self.getValueOfProperty("typeValidators") || {};
+						
+						//ensure that type matches for at least one of the required types
+						for (x = 0, xl = requiredTypes.length; x < xl; ++x) {
+							type = requiredTypes[x];
+							if (JSV.isJSONSchema(type)) {
+								subreport = JSV.createObject(report);
+								subreport.errors = [];
+								subreport.validated = JSV.clone(report.validated);
+								if (type.validate(instance, subreport, parent, parentSchema, name).errors.length === 0) {
+									return true;  //instance matches this schema
+								}
+							} else {
+								if (typeValidators[type] !== O[type] && typeof typeValidators[type] === "function") {
+									if (typeValidators[type](instance, report)) {
+										return true;  //type is valid
+									}
+								} else {
+									return true;  //unknown types are assumed valid
+								}
+							}
+						}
+						
+						//if we get to this point, type is invalid
+						report.addError(instance, schema, "type", "Instance is not a required type", requiredTypes);
+						return false;
+					}
+					//else, anything is allowed if no type is specified
+					return true;
+				},
+				
+				"typeValidators" : TYPE_VALIDATORS
+			},
+			
+			"properties" : {
+				"type" : "object",
+				"additionalProperties" : {"$ref" : "#"},
+				"optional" : true,
+				"default" : {},
+				
+				"parser" : function (instance, self, arg) {
+					var env = instance.getEnvironment(),
+						selfEnv = self.getEnvironment();
+					if (instance.getType() === "object") {
+						if (arg) {
+							return env.createSchema(instance.getProperty(arg), selfEnv.findSchema(self.resolveURI("#")));
+						} else {
+							return JSV.mapObject(instance.getProperties(), function (instance) {
+								return env.createSchema(instance, selfEnv.findSchema(self.resolveURI("#")));
+							});
+						}
+					}
+					//else
+					return {};
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var propertySchemas, key;
+					//this attribute is for object type instances only
+					if (instance.getType() === "object") {
+						//for each property defined in the schema
+						propertySchemas = schema.getAttribute("properties");
+						for (key in propertySchemas) {
+							if (propertySchemas[key] !== O[key] && propertySchemas[key]) {
+								//ensure that instance property is valid
+								propertySchemas[key].validate(instance.getProperty(key), report, instance, schema, key);
+							}
+						}
+					}
+				}
+			},
+			
+			"items" : {
+				"type" : [{"$ref" : "#"}, "array"],
+				"items" : {"$ref" : "#"},
+				"optional" : true,
+				"default" : {},
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "object") {
+						return instance.getEnvironment().createSchema(instance, self.getEnvironment().findSchema(self.resolveURI("#")));
+					} else if (instance.getType() === "array") {
+						return JSV.mapArray(instance.getProperties(), function (instance) {
+							return instance.getEnvironment().createSchema(instance, self.getEnvironment().findSchema(self.resolveURI("#")));
+						});
+					}
+					//else
+					return instance.getEnvironment().createEmptySchema();
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var properties, items, x, xl, itemSchema, additionalProperties;
+					
+					if (instance.getType() === "array") {
+						properties = instance.getProperties();
+						items = schema.getAttribute("items");
+						additionalProperties = schema.getAttribute("additionalProperties");
+						
+						if (JSV.typeOf(items) === "array") {
+							for (x = 0, xl = properties.length; x < xl; ++x) {
+								itemSchema = items[x] || additionalProperties;
+								if (itemSchema !== false) {
+									itemSchema.validate(properties[x], report, instance, schema, x);
+								} else {
+									report.addError(instance, schema, "additionalProperties", "Additional items are not allowed", itemSchema);
+								}
+							}
+						} else {
+							itemSchema = items || additionalProperties;
+							for (x = 0, xl = properties.length; x < xl; ++x) {
+								itemSchema.validate(properties[x], report, instance, schema, x);
+							}
+						}
+					}
+				}
+			},
+			
+			"optional" : {
+				"type" : "boolean",
+				"optional" : true,
+				"default" : false,
+				
+				"parser" : function (instance, self) {
+					return !!instance.getValue();
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					if (instance.getType() === "undefined" && !schema.getAttribute("optional")) {
+						report.addError(instance, schema, "optional", "Property is required", false);
+					}
+				},
+				
+				"validationRequired" : true
+			},
+			
+			"additionalProperties" : {
+				"type" : [{"$ref" : "#"}, "boolean"],
+				"optional" : true,
+				"default" : {},
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "object") {
+						return instance.getEnvironment().createSchema(instance, self.getEnvironment().findSchema(self.resolveURI("#")));
+					} else if (instance.getType() === "boolean" && instance.getValue() === false) {
+						return false;
+					}
+					//else
+					return instance.getEnvironment().createEmptySchema();
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var additionalProperties, propertySchemas, properties, key;
+					//we only need to check against object types as arrays do their own checking on this property
+					if (instance.getType() === "object") {
+						additionalProperties = schema.getAttribute("additionalProperties");
+						propertySchemas = schema.getAttribute("properties") || {};
+						properties = instance.getProperties();
+						for (key in properties) {
+							if (properties[key] !== O[key] && properties[key] && !propertySchemas[key]) {
+								if (JSV.isJSONSchema(additionalProperties)) {
+									additionalProperties.validate(properties[key], report, instance, schema, key);
+								} else if (additionalProperties === false) {
+									report.addError(instance, schema, "additionalProperties", "Additional properties are not allowed", additionalProperties);
+								}
+							}
+						}
+					}
+				}
+			},
+			
+			"requires" : {
+				"type" : ["string", {"$ref" : "#"}],
+				"optional" : true,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "string") {
+						return instance.getValue();
+					} else if (instance.getType() === "object") {
+						return instance.getEnvironment().createSchema(instance, self.getEnvironment().findSchema(self.resolveURI("#")));
+					}
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var requires;
+					if (instance.getType() !== "undefined" && parent && parent.getType() !== "undefined") {
+						requires = schema.getAttribute("requires");
+						if (typeof requires === "string") {
+							if (parent.getProperty(requires).getType() === "undefined") {
+								report.addError(instance, schema, "requires", 'Property requires sibling property "' + requires + '"', requires);
+							}
+						} else if (JSV.isJSONSchema(requires)) {
+							requires.validate(parent, report);  //WATCH: A "requires" schema does not support the "requires" attribute
+						}
+					}
+				}
+			},
+			
+			"minimum" : {
+				"type" : "number",
+				"optional" : true,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "number") {
+						return instance.getValue();
+					}
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var minimum, minimumCanEqual;
+					if (instance.getType() === "number") {
+						minimum = schema.getAttribute("minimum");
+						minimumCanEqual = schema.getAttribute("minimumCanEqual");
+						if (typeof minimum === "number" && (instance.getValue() < minimum || (minimumCanEqual === false && instance.getValue() === minimum))) {
+							report.addError(instance, schema, "minimum", "Number is less than the required minimum value", minimum);
+						}
+					}
+				}
+			},
+			
+			"maximum" : {
+				"type" : "number",
+				"optional" : true,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "number") {
+						return instance.getValue();
+					}
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var maximum, maximumCanEqual;
+					if (instance.getType() === "number") {
+						maximum = schema.getAttribute("maximum");
+						maximumCanEqual = schema.getAttribute("maximumCanEqual");
+						if (typeof maximum === "number" && (instance.getValue() > maximum || (maximumCanEqual === false && instance.getValue() === maximum))) {
+							report.addError(instance, schema, "maximum", "Number is greater than the required maximum value", maximum);
+						}
+					}
+				}
+			},
+			
+			"minimumCanEqual" : {
+				"type" : "boolean",
+				"optional" : true,
+				"requires" : "minimum",
+				"default" : true,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "boolean") {
+						return instance.getValue();
+					}
+					//else
+					return true;
+				}
+			},
+			
+			"maximumCanEqual" : {
+				"type" : "boolean",
+				"optional" : true,
+				"requires" : "maximum",
+				"default" : true,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "boolean") {
+						return instance.getValue();
+					}
+					//else
+					return true;
+				}
+			},
+			
+			"minItems" : {
+				"type" : "integer",
+				"optional" : true,
+				"minimum" : 0,
+				"default" : 0,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "number") {
+						return instance.getValue();
+					}
+					//else
+					return 0;
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var minItems;
+					if (instance.getType() === "array") {
+						minItems = schema.getAttribute("minItems");
+						if (typeof minItems === "number" && instance.getProperties().length < minItems) {
+							report.addError(instance, schema, "minItems", "The number of items is less than the required minimum", minItems);
+						}
+					}
+				}
+			},
+			
+			"maxItems" : {
+				"type" : "integer",
+				"optional" : true,
+				"minimum" : 0,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "number") {
+						return instance.getValue();
+					}
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var maxItems;
+					if (instance.getType() === "array") {
+						maxItems = schema.getAttribute("maxItems");
+						if (typeof maxItems === "number" && instance.getProperties().length > maxItems) {
+							report.addError(instance, schema, "maxItems", "The number of items is greater than the required maximum", maxItems);
+						}
+					}
+				}
+			},
+			
+			"uniqueItems" : {
+				"type" : "boolean",
+				"optional" : true,
+				"default" : false,
+				
+				"parser" : function (instance, self) {
+					return !!instance.getValue();
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var value, x, xl, y, yl;
+					if (instance.getType() === "array" && schema.getAttribute("uniqueItems")) {
+						value = instance.getProperties();
+						for (x = 0, xl = value.length - 1; x < xl; ++x) {
+							for (y = x + 1, yl = value.length; y < yl; ++y) {
+								if (value[x].equals(value[y])) {
+									report.addError(instance, schema, "uniqueItems", "Array can only contain unique items", { x : x, y : y });
+								}
+							}
+						}
+					}
+				}
+			},
+			
+			"pattern" : {
+				"type" : "string",
+				"optional" : true,
+				"format" : "regex",
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "string") {
+						return instance.getValue();
+					}
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var pattern;
+					try {
+						pattern = new RegExp(schema.getAttribute("pattern"));
+						if (instance.getType() === "string" && pattern && !pattern.test(instance.getValue())) {
+							report.addError(instance, schema, "pattern", "String does not match pattern", pattern.toString());
+						}
+					} catch (e) {
+						report.addError(instance, schema, "pattern", "Invalid pattern", e);
+					}
+				}
+			},
+			
+			"minLength" : {
+				"type" : "integer",
+				"optional" : true,
+				"minimum" : 0,
+				"default" : 0,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "number") {
+						return instance.getValue();
+					}
+					//else
+					return 0;
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var minLength;
+					if (instance.getType() === "string") {
+						minLength = schema.getAttribute("minLength");
+						if (typeof minLength === "number" && instance.getValue().length < minLength) {
+							report.addError(instance, schema, "minLength", "String is less than the required minimum length", minLength);
+						}
+					}
+				}
+			},
+			
+			"maxLength" : {
+				"type" : "integer",
+				"optional" : true,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "number") {
+						return instance.getValue();
+					}
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var maxLength;
+					if (instance.getType() === "string") {
+						maxLength = schema.getAttribute("maxLength");
+						if (typeof maxLength === "number" && instance.getValue().length > maxLength) {
+							report.addError(instance, schema, "maxLength", "String is greater than the required maximum length", maxLength);
+						}
+					}
+				}
+			},
+			
+			"enum" : {
+				"type" : "array",
+				"optional" : true,
+				"minItems" : 1,
+				"uniqueItems" : true,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "array") {
+						return instance.getValue();
+					}
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var enums, x, xl;
+					if (instance.getType() !== "undefined") {
+						enums = schema.getAttribute("enum");
+						if (enums) {
+							for (x = 0, xl = enums.length; x < xl; ++x) {
+								if (instance.equals(enums[x])) {
+									return true;
+								}
+							}
+							report.addError(instance, schema, "enum", "Instance is not one of the possible values", enums);
+						}
+					}
+				}
+			},
+			
+			"title" : {
+				"type" : "string",
+				"optional" : true
+			},
+			
+			"description" : {
+				"type" : "string",
+				"optional" : true
+			},
+			
+			"format" : {
+				"type" : "string",
+				"optional" : true,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "string") {
+						return instance.getValue();
+					}
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var format, formatValidators;
+					if (instance.getType() === "string") {
+						format = schema.getAttribute("format");
+						formatValidators = self.getValueOfProperty("formatValidators");
+						if (typeof format === "string" && formatValidators[format] !== O[format] && typeof formatValidators[format] === "function" && !formatValidators[format].call(this, instance, report)) {
+							report.addError(instance, schema, "format", "String is not in the required format", format);
+						}
+					}
+				},
+				
+				"formatValidators" : {}
+			},
+			
+			"contentEncoding" : {
+				"type" : "string",
+				"optional" : true
+			},
+			
+			"default" : {
+				"type" : "any",
+				"optional" : true
+			},
+			
+			"divisibleBy" : {
+				"type" : "number",
+				"minimum" : 0,
+				"minimumCanEqual" : false,
+				"optional" : true,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "number") {
+						return instance.getValue();
+					}
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var divisor;
+					if (instance.getType() === "number") {
+						divisor = schema.getAttribute("divisibleBy");
+						if (divisor === 0) {
+							report.addError(instance, schema, "divisibleBy", "Nothing is divisible by 0", divisor);
+						} else if (divisor !== 1 && ((instance.getValue() / divisor) % 1) !== 0) {
+							report.addError(instance, schema, "divisibleBy", "Number is not divisible by " + divisor, divisor);
+						}
+					}
+				}
+			},
+			
+			"disallow" : {
+				"type" : ["string", "array"],
+				"items" : {"type" : "string"},
+				"optional" : true,
+				"uniqueItems" : true,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "string" || instance.getType() === "array") {
+						return instance.getValue();
+					}
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var disallowedTypes = JSV.toArray(schema.getAttribute("disallow")),
+						x, xl, key, typeValidators;
+					
+					//for instances that are required to be a certain type
+					if (instance.getType() !== "undefined" && disallowedTypes && disallowedTypes.length) {
+						typeValidators = self.getValueOfProperty("typeValidators") || {};
+						
+						//ensure that type matches for at least one of the required types
+						for (x = 0, xl = disallowedTypes.length; x < xl; ++x) {
+							key = disallowedTypes[x];
+							if (typeValidators[key] !== O[key] && typeof typeValidators[key] === "function") {
+								if (typeValidators[key](instance, report)) {
+									report.addError(instance, schema, "disallow", "Instance is a disallowed type", disallowedTypes);
+									return false;
+								}
+							} 
+							/*
+							else {
+								report.addError(instance, schema, "disallow", "Instance may be a disallowed type", disallowedTypes);
+								return false;
+							}
+							*/
+						}
+						
+						//if we get to this point, type is valid
+						return true;
+					}
+					//else, everything is allowed if no disallowed types are specified
+					return true;
+				},
+				
+				"typeValidators" : TYPE_VALIDATORS
+			},
+		
+			"extends" : {
+				"type" : [{"$ref" : "#"}, "array"],
+				"items" : {"$ref" : "#"},
+				"optional" : true,
+				"default" : {},
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "object") {
+						return instance.getEnvironment().createSchema(instance, self.getEnvironment().findSchema(self.resolveURI("#")));
+					} else if (instance.getType() === "array") {
+						return JSV.mapArray(instance.getProperties(), function (instance) {
+							return instance.getEnvironment().createSchema(instance, self.getEnvironment().findSchema(self.resolveURI("#")));
+						});
+					}
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var extensions = schema.getAttribute("extends"), x, xl;
+					if (extensions) {
+						if (JSV.isJSONSchema(extensions)) {
+							extensions.validate(instance, report, parent, parentSchema, name);
+						} else if (JSV.typeOf(extensions) === "array") {
+							for (x = 0, xl = extensions.length; x < xl; ++x) {
+								extensions[x].validate(instance, report, parent, parentSchema, name);
+							}
+						}
+					}
+				}
+			}
+		},
+		
+		"optional" : true,
+		"default" : {},
+		"fragmentResolution" : "slash-delimited",
+		
+		"parser" : function (instance, self) {
+			if (instance.getType() === "object") {
+				return instance.getEnvironment().createSchema(instance, self);
+			}
+		},
+		
+		"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+			var propNames = schema.getPropertyNames(), 
+				x, xl,
+				attributeSchemas = self.getAttribute("properties"),
+				validator;
+			
+			for (x in attributeSchemas) {
+				if (attributeSchemas[x] !== O[x] && attributeSchemas[x].getValueOfProperty("validationRequired")) {
+					JSV.pushUnique(propNames, x);
+				}
+			}
+			
+			for (x = 0, xl = propNames.length; x < xl; ++x) {
+				if (attributeSchemas[propNames[x]] !== O[propNames[x]]) {
+					validator = attributeSchemas[propNames[x]].getValueOfProperty("validator");
+					if (typeof validator === "function") {
+						validator(instance, schema, attributeSchemas[propNames[x]], report, parent, parentSchema, name);
+					}
+				}
+			}
+		},
+				
+		"initializer" : function (instance) {
+			var link, extension, extended;
+			
+			//if there is a link to a different schema, set reference
+			link = instance._schema.getLink("describedby", instance);
+			if (link && instance._schema._uri !== link) {
+				instance.setReference("describedby", link);
+			}
+			
+			//if instance has a URI link to itself, update it's own URI
+			link = instance._schema.getLink("self", instance);
+			if (JSV.typeOf(link) === "string") {
+				instance._uri = JSV.formatURI(link);
+			}
+			
+			//if there is a link to the full representation, set reference
+			link = instance._schema.getLink("full", instance);
+			if (link && instance._uri !== link) {
+				instance.setReference("full", link);
+			}
+			
+			//extend schema
+			extension = instance.getAttribute("extends");
+			if (JSV.isJSONSchema(extension)) {
+				extended = JSV.inherits(extension, instance, true);
+				instance = instance._env.createSchema(extended, instance._schema, instance._uri);
+			}
+			
+			return instance;
+		}
+	}, true, "http://json-schema.org/schema#");
+	
+	HYPERSCHEMA = ENVIRONMENT.createSchema(JSV.inherits(SCHEMA, ENVIRONMENT.createSchema({
+		"$schema" : "http://json-schema.org/hyper-schema#",
+		"id" : "http://json-schema.org/hyper-schema#",
+	
+		"properties" : {
+			"links" : {
+				"type" : "array",
+				"items" : {"$ref" : "links#"},
+				"optional" : true,
+				
+				"parser" : function (instance, self, arg) {
+					var links,
+						linkSchemaURI = self.getValueOfProperty("items")["$ref"],
+						linkSchema = self.getEnvironment().findSchema(linkSchemaURI),
+						linkParser = linkSchema && linkSchema.getValueOfProperty("parser");
+					arg = JSV.toArray(arg);
+					
+					if (typeof linkParser === "function") {
+						links = JSV.mapArray(instance.getProperties(), function (link) {
+							return linkParser(link, linkSchema);
+						});
+					} else {
+						links = JSV.toArray(instance.getValue());
+					}
+					
+					if (arg[0]) {
+						links = JSV.filterArray(links, function (link) {
+							return link["rel"] === arg[0];
+						});
+					}
+					
+					if (arg[1]) {
+						links = JSV.mapArray(links, function (link) {
+							var instance = arg[1],
+								href = link["href"];
+							href = href.replace(/\{(.+)\}/g, function (str, p1, offset, s) {
+								var value; 
+								if (p1 === "-this") {
+									value = instance.getValue();
+								} else {
+									value = instance.getValueOfProperty(p1);
+								}
+								return value !== undefined ? String(value) : "";
+							});
+							return href ? JSV.formatURI(instance.resolveURI(href)) : href;
+						});
+					}
+					
+					return links;
+				}
+			},
+			
+			"fragmentResolution" : {
+				"type" : "string",
+				"optional" : true,
+				"default" : "slash-delimited"
+			},
+			
+			"root" : {
+				"type" : "boolean",
+				"optional" : true,
+				"default" : false
+			},
+			
+			"readonly" : {
+				"type" : "boolean",
+				"optional" : true,
+				"default" : false
+			},
+			
+			"pathStart" : {
+				"type" : "string",
+				"optional" : true,
+				"format" : "uri",
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var pathStart;
+					if (instance.getType() !== "undefined") {
+						pathStart = schema.getAttribute("pathStart");
+						if (typeof pathStart === "string") {
+							//TODO: Find out what pathStart is relative to
+							if (instance.getURI().indexOf(pathStart) !== 0) {
+								report.addError(instance, schema, "pathStart", "Instance's URI does not start with " + pathStart, pathStart);
+							}
+						}
+					}
+				}
+			},
+			
+			"mediaType" : {
+				"type" : "string",
+				"optional" : true,
+				"format" : "media-type"
+			},
+			
+			"alternate" : {
+				"type" : "array",
+				"items" : {"$ref" : "#"},
+				"optional" : true
+			}
+		},
+		
+		"links" : [
+			{
+				"href" : "{$ref}",
+				"rel" : "full"
+			},
+			
+			{
+				"href" : "{$schema}",
+				"rel" : "describedby"
+			},
+			
+			{
+				"href" : "{id}",
+				"rel" : "self"
+			}
+		]//,
+		
+		//not needed as JSV.inherits does the job for us
+		//"extends" : {"$ref" : "http://json-schema.org/schema#"}
+	}, SCHEMA), true), true, "http://json-schema.org/hyper-schema#");
+	
+	ENVIRONMENT.setOption("defaultSchemaURI", "http://json-schema.org/hyper-schema#");
+	
+	LINKS = ENVIRONMENT.createSchema({
+		"$schema" : "http://json-schema.org/hyper-schema#",
+		"id" : "http://json-schema.org/links#",
+		"type" : "object",
+		
+		"properties" : {
+			"href" : {
+				"type" : "string"
+			},
+			
+			"rel" : {
+				"type" : "string"
+			},
+			
+			"targetSchema" : {
+				"$ref" : "hyper-schema#",
+				
+				//need this here because parsers are run before links are resolved
+				"parser" : HYPERSCHEMA.getAttribute("parser")
+			},
+			
+			"method" : {
+				"type" : "string",
+				"default" : "GET",
+				"optional" : true
+			},
+			
+			"enctype" : {
+				"type" : "string",
+				"requires" : "method",
+				"optional" : true
+			},
+			
+			"properties" : {
+				"type" : "object",
+				"additionalProperties" : {"$ref" : "hyper-schema#"},
+				"optional" : true,
+				
+				"parser" : function (instance, self, arg) {
+					var env = instance.getEnvironment(),
+						selfEnv = self.getEnvironment(),
+						additionalPropertiesSchemaURI = self.getValueOfProperty("additionalProperties")["$ref"];
+					if (instance.getType() === "object") {
+						if (arg) {
+							return env.createSchema(instance.getProperty(arg), selfEnv.findSchema(self.resolveURI(additionalPropertiesSchemaURI)));
+						} else {
+							return JSV.mapObject(instance.getProperties(), function (instance) {
+								return env.createSchema(instance, selfEnv.findSchema(self.resolveURI(additionalPropertiesSchemaURI)));
+							});
+						}
+					}
+				}
+			}
+		},
+		
+		"parser" : function (instance, self) {
+			var selfProperties = self.getProperty("properties");
+			if (instance.getType() === "object") {
+				return JSV.mapObject(instance.getProperties(), function (property, key) {
+					var propertySchema = selfProperties.getProperty(key),
+						parser = propertySchema && propertySchema.getValueOfProperty("parser");
+					if (typeof parser === "function") {
+						return parser(property, propertySchema);
+					}
+					//else
+					return property.getValue();
+				});
+			}
+			return instance.getValue();
+		}
+	}, HYPERSCHEMA, "http://json-schema.org/links#");
+	
+	JSV.registerEnvironment("json-schema-draft-02", ENVIRONMENT);
+	if (!JSV.getDefaultEnvironmentID() || JSV.getDefaultEnvironmentID() === "json-schema-draft-01") {
+		JSV.setDefaultEnvironmentID("json-schema-draft-02");
+	}
+	
+}());}, "json-schema-draft-03": function(exports, require, module) {/**
+ * json-schema-draft-03 Environment
+ * 
+ * @fileOverview Implementation of the third revision of the JSON Schema specification draft.
+ * @author <a href="mailto:gary.court@gmail.com">Gary Court</a>
+ * @version 1.5.1
+ * @see http://github.com/garycourt/JSV
+ */
+
+/*
+ * Copyright 2010 Gary Court. All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, are
+ * permitted provided that the following conditions are met:
+ * 
+ *    1. Redistributions of source code must retain the above copyright notice, this list of
+ *       conditions and the following disclaimer.
+ * 
+ *    2. Redistributions in binary form must reproduce the above copyright notice, this list
+ *       of conditions and the following disclaimer in the documentation and/or other materials
+ *       provided with the distribution.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY GARY COURT ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL GARY COURT OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * 
+ * The views and conclusions contained in the software and documentation are those of the
+ * authors and should not be interpreted as representing official policies, either expressed
+ * or implied, of Gary Court or the JSON Schema specification.
+ */
+
+/*jslint white: true, sub: true, onevar: true, undef: true, eqeqeq: true, newcap: true, immed: true, indent: 4 */
+/*global require */
+
+(function () {
+	var O = {},
+		JSV = require('./jsv').JSV,
+		TYPE_VALIDATORS,
+		ENVIRONMENT,
+		SCHEMA_00_JSON,
+		HYPERSCHEMA_00_JSON,
+		LINKS_00_JSON, 
+		SCHEMA_00,
+		HYPERSCHEMA_00,
+		LINKS_00, 
+		SCHEMA_01_JSON,
+		HYPERSCHEMA_01_JSON,
+		LINKS_01_JSON, 
+		SCHEMA_01,
+		HYPERSCHEMA_01,
+		LINKS_01, 
+		SCHEMA_02_JSON,
+		HYPERSCHEMA_02_JSON,
+		LINKS_02_JSON,
+		SCHEMA_02,
+		HYPERSCHEMA_02,
+		LINKS_02, 
+		SCHEMA_03_JSON,
+		HYPERSCHEMA_03_JSON,
+		LINKS_03_JSON,
+		SCHEMA_03,
+		HYPERSCHEMA_03,
+		LINKS_03;
+	
+	TYPE_VALIDATORS = {
+		"string" : function (instance, report) {
+			return instance.getType() === "string";
+		},
+		
+		"number" : function (instance, report) {
+			return instance.getType() === "number";
+		},
+		
+		"integer" : function (instance, report) {
+			return instance.getType() === "number" && instance.getValue() % 1 === 0;
+		},
+		
+		"boolean" : function (instance, report) {
+			return instance.getType() === "boolean";
+		},
+		
+		"object" : function (instance, report) {
+			return instance.getType() === "object";
+		},
+		
+		"array" : function (instance, report) {
+			return instance.getType() === "array";
+		},
+		
+		"null" : function (instance, report) {
+			return instance.getType() === "null";
+		},
+		
+		"any" : function (instance, report) {
+			return true;
+		}
+	};
+	
+	ENVIRONMENT = new JSV.Environment();
+	ENVIRONMENT.setOption("validateReferences", true);
+	ENVIRONMENT.setOption("enforceReferences", false);
+	ENVIRONMENT.setOption("strict", false);
+	
+	//
+	// draft-00
+	//
+	
+	SCHEMA_00_JSON = {
+		"$schema" : "http://json-schema.org/draft-00/hyper-schema#",
+		"id" : "http://json-schema.org/draft-00/schema#",
+		"type" : "object",
+		
+		"properties" : {
+			"type" : {
+				"type" : ["string", "array"],
+				"items" : {
+					"type" : ["string", {"$ref" : "#"}]
+				},
+				"optional" : true,
+				"uniqueItems" : true,
+				"default" : "any",
+				
+				"parser" : function (instance, self) {
+					var parser;
+					
+					if (instance.getType() === "string") {
+						return instance.getValue();
+					} else if (instance.getType() === "object") {
+						return instance.getEnvironment().createSchema(
+							instance, 
+							self.getEnvironment().findSchema(self.resolveURI("#"))
+						);
+					} else if (instance.getType() === "array") {
+						parser = self.getValueOfProperty("parser");
+						return JSV.mapArray(instance.getProperties(), function (prop) {
+							return parser(prop, self);
+						});
+					}
+					//else
+					return "any";
+				},
+			
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var requiredTypes = JSV.toArray(schema.getAttribute("type")),
+						x, xl, type, subreport, typeValidators;
+					
+					//for instances that are required to be a certain type
+					if (instance.getType() !== "undefined" && requiredTypes && requiredTypes.length) {
+						typeValidators = self.getValueOfProperty("typeValidators") || {};
+						
+						//ensure that type matches for at least one of the required types
+						for (x = 0, xl = requiredTypes.length; x < xl; ++x) {
+							type = requiredTypes[x];
+							if (JSV.isJSONSchema(type)) {
+								subreport = JSV.createObject(report);
+								subreport.errors = [];
+								subreport.validated = JSV.clone(report.validated);
+								if (type.validate(instance, subreport, parent, parentSchema, name).errors.length === 0) {
+									return true;  //instance matches this schema
+								}
+							} else {
+								if (typeValidators[type] !== O[type] && typeof typeValidators[type] === "function") {
+									if (typeValidators[type](instance, report)) {
+										return true;  //type is valid
+									}
+								} else {
+									return true;  //unknown types are assumed valid
+								}
+							}
+						}
+						
+						//if we get to this point, type is invalid
+						report.addError(instance, schema, "type", "Instance is not a required type", requiredTypes);
+						return false;
+					}
+					//else, anything is allowed if no type is specified
+					return true;
+				},
+				
+				"typeValidators" : TYPE_VALIDATORS
+			},
+			
+			"properties" : {
+				"type" : "object",
+				"additionalProperties" : {"$ref" : "#"},
+				"optional" : true,
+				"default" : {},
+				
+				"parser" : function (instance, self, arg) {
+					var env = instance.getEnvironment(),
+						selfEnv = self.getEnvironment();
+					if (instance.getType() === "object") {
+						if (arg) {
+							return env.createSchema(instance.getProperty(arg), selfEnv.findSchema(self.resolveURI("#")));
+						} else {
+							return JSV.mapObject(instance.getProperties(), function (instance) {
+								return env.createSchema(instance, selfEnv.findSchema(self.resolveURI("#")));
+							});
+						}
+					}
+					//else
+					return {};
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var propertySchemas, key;
+					//this attribute is for object type instances only
+					if (instance.getType() === "object") {
+						//for each property defined in the schema
+						propertySchemas = schema.getAttribute("properties");
+						for (key in propertySchemas) {
+							if (propertySchemas[key] !== O[key] && propertySchemas[key]) {
+								//ensure that instance property is valid
+								propertySchemas[key].validate(instance.getProperty(key), report, instance, schema, key);
+							}
+						}
+					}
+				}
+			},
+			
+			"items" : {
+				"type" : [{"$ref" : "#"}, "array"],
+				"items" : {"$ref" : "#"},
+				"optional" : true,
+				"default" : {},
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "object") {
+						return instance.getEnvironment().createSchema(instance, self.getEnvironment().findSchema(self.resolveURI("#")));
+					} else if (instance.getType() === "array") {
+						return JSV.mapArray(instance.getProperties(), function (instance) {
+							return instance.getEnvironment().createSchema(instance, self.getEnvironment().findSchema(self.resolveURI("#")));
+						});
+					}
+					//else
+					return instance.getEnvironment().createEmptySchema();
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var properties, items, x, xl, itemSchema, additionalProperties;
+					
+					if (instance.getType() === "array") {
+						properties = instance.getProperties();
+						items = schema.getAttribute("items");
+						additionalProperties = schema.getAttribute("additionalProperties");
+						
+						if (JSV.typeOf(items) === "array") {
+							for (x = 0, xl = properties.length; x < xl; ++x) {
+								itemSchema = items[x] || additionalProperties;
+								if (itemSchema !== false) {
+									itemSchema.validate(properties[x], report, instance, schema, x);
+								} else {
+									report.addError(instance, schema, "additionalProperties", "Additional items are not allowed", itemSchema);
+								}
+							}
+						} else {
+							itemSchema = items || additionalProperties;
+							for (x = 0, xl = properties.length; x < xl; ++x) {
+								itemSchema.validate(properties[x], report, instance, schema, x);
+							}
+						}
+					}
+				}
+			},
+			
+			"optional" : {
+				"type" : "boolean",
+				"optional" : true,
+				"default" : false,
+				
+				"parser" : function (instance, self) {
+					return !!instance.getValue();
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					if (instance.getType() === "undefined" && !schema.getAttribute("optional")) {
+						report.addError(instance, schema, "optional", "Property is required", false);
+					}
+				},
+				
+				"validationRequired" : true
+			},
+			
+			"additionalProperties" : {
+				"type" : [{"$ref" : "#"}, "boolean"],
+				"optional" : true,
+				"default" : {},
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "object") {
+						return instance.getEnvironment().createSchema(instance, self.getEnvironment().findSchema(self.resolveURI("#")));
+					} else if (instance.getType() === "boolean" && instance.getValue() === false) {
+						return false;
+					}
+					//else
+					return instance.getEnvironment().createEmptySchema();
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var additionalProperties, propertySchemas, properties, key;
+					//we only need to check against object types as arrays do their own checking on this property
+					if (instance.getType() === "object") {
+						additionalProperties = schema.getAttribute("additionalProperties");
+						propertySchemas = schema.getAttribute("properties") || {};
+						properties = instance.getProperties();
+						for (key in properties) {
+							if (properties[key] !== O[key] && properties[key] && propertySchemas[key] === O[key]) {
+								if (JSV.isJSONSchema(additionalProperties)) {
+									additionalProperties.validate(properties[key], report, instance, schema, key);
+								} else if (additionalProperties === false) {
+									report.addError(instance, schema, "additionalProperties", "Additional properties are not allowed", additionalProperties);
+								}
+							}
+						}
+					}
+				}
+			},
+			
+			"requires" : {
+				"type" : ["string", {"$ref" : "#"}],
+				"optional" : true,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "string") {
+						return instance.getValue();
+					} else if (instance.getType() === "object") {
+						return instance.getEnvironment().createSchema(instance, self.getEnvironment().findSchema(self.resolveURI("#")));
+					}
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var requires;
+					if (instance.getType() !== "undefined" && parent && parent.getType() !== "undefined") {
+						requires = schema.getAttribute("requires");
+						if (typeof requires === "string") {
+							if (parent.getProperty(requires).getType() === "undefined") {
+								report.addError(instance, schema, "requires", 'Property requires sibling property "' + requires + '"', requires);
+							}
+						} else if (JSV.isJSONSchema(requires)) {
+							requires.validate(parent, report);  //WATCH: A "requires" schema does not support the "requires" attribute
+						}
+					}
+				}
+			},
+			
+			"minimum" : {
+				"type" : "number",
+				"optional" : true,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "number") {
+						return instance.getValue();
+					}
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var minimum, minimumCanEqual;
+					if (instance.getType() === "number") {
+						minimum = schema.getAttribute("minimum");
+						minimumCanEqual = schema.getAttribute("minimumCanEqual");
+						if (typeof minimum === "number" && (instance.getValue() < minimum || (minimumCanEqual === false && instance.getValue() === minimum))) {
+							report.addError(instance, schema, "minimum", "Number is less than the required minimum value", minimum);
+						}
+					}
+				}
+			},
+			
+			"maximum" : {
+				"type" : "number",
+				"optional" : true,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "number") {
+						return instance.getValue();
+					}
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var maximum, maximumCanEqual;
+					if (instance.getType() === "number") {
+						maximum = schema.getAttribute("maximum");
+						maximumCanEqual = schema.getAttribute("maximumCanEqual");
+						if (typeof maximum === "number" && (instance.getValue() > maximum || (maximumCanEqual === false && instance.getValue() === maximum))) {
+							report.addError(instance, schema, "maximum", "Number is greater than the required maximum value", maximum);
+						}
+					}
+				}
+			},
+			
+			"minimumCanEqual" : {
+				"type" : "boolean",
+				"optional" : true,
+				"requires" : "minimum",
+				"default" : true,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "boolean") {
+						return instance.getValue();
+					}
+					//else
+					return true;
+				}
+			},
+			
+			"maximumCanEqual" : {
+				"type" : "boolean",
+				"optional" : true,
+				"requires" : "maximum",
+				"default" : true,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "boolean") {
+						return instance.getValue();
+					}
+					//else
+					return true;
+				}
+			},
+			
+			"minItems" : {
+				"type" : "integer",
+				"optional" : true,
+				"minimum" : 0,
+				"default" : 0,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "number") {
+						return instance.getValue();
+					}
+					//else
+					return 0;
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var minItems;
+					if (instance.getType() === "array") {
+						minItems = schema.getAttribute("minItems");
+						if (typeof minItems === "number" && instance.getProperties().length < minItems) {
+							report.addError(instance, schema, "minItems", "The number of items is less than the required minimum", minItems);
+						}
+					}
+				}
+			},
+			
+			"maxItems" : {
+				"type" : "integer",
+				"optional" : true,
+				"minimum" : 0,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "number") {
+						return instance.getValue();
+					}
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var maxItems;
+					if (instance.getType() === "array") {
+						maxItems = schema.getAttribute("maxItems");
+						if (typeof maxItems === "number" && instance.getProperties().length > maxItems) {
+							report.addError(instance, schema, "maxItems", "The number of items is greater than the required maximum", maxItems);
+						}
+					}
+				}
+			},
+			
+			"pattern" : {
+				"type" : "string",
+				"optional" : true,
+				"format" : "regex",
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "string") {
+						return instance.getValue();
+					}
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var pattern;
+					try {
+						pattern = new RegExp(schema.getAttribute("pattern"));
+						if (instance.getType() === "string" && pattern && !pattern.test(instance.getValue())) {
+							report.addError(instance, schema, "pattern", "String does not match pattern", pattern.toString());
+						}
+					} catch (e) {
+						report.addError(schema, self, "pattern", "Invalid pattern", schema.getValueOfProperty("pattern"));
+					}
+				}
+			},
+			
+			"minLength" : {
+				"type" : "integer",
+				"optional" : true,
+				"minimum" : 0,
+				"default" : 0,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "number") {
+						return instance.getValue();
+					}
+					//else
+					return 0;
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var minLength;
+					if (instance.getType() === "string") {
+						minLength = schema.getAttribute("minLength");
+						if (typeof minLength === "number" && instance.getValue().length < minLength) {
+							report.addError(instance, schema, "minLength", "String is less than the required minimum length", minLength);
+						}
+					}
+				}
+			},
+			
+			"maxLength" : {
+				"type" : "integer",
+				"optional" : true,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "number") {
+						return instance.getValue();
+					}
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var maxLength;
+					if (instance.getType() === "string") {
+						maxLength = schema.getAttribute("maxLength");
+						if (typeof maxLength === "number" && instance.getValue().length > maxLength) {
+							report.addError(instance, schema, "maxLength", "String is greater than the required maximum length", maxLength);
+						}
+					}
+				}
+			},
+			
+			"enum" : {
+				"type" : "array",
+				"optional" : true,
+				"minItems" : 1,
+				"uniqueItems" : true,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "array") {
+						return instance.getValue();
+					}
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var enums, x, xl;
+					if (instance.getType() !== "undefined") {
+						enums = schema.getAttribute("enum");
+						if (enums) {
+							for (x = 0, xl = enums.length; x < xl; ++x) {
+								if (instance.equals(enums[x])) {
+									return true;
+								}
+							}
+							report.addError(instance, schema, "enum", "Instance is not one of the possible values", enums);
+						}
+					}
+				}
+			},
+			
+			"title" : {
+				"type" : "string",
+				"optional" : true
+			},
+			
+			"description" : {
+				"type" : "string",
+				"optional" : true
+			},
+			
+			"format" : {
+				"type" : "string",
+				"optional" : true,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "string") {
+						return instance.getValue();
+					}
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var format, formatValidators;
+					if (instance.getType() === "string") {
+						format = schema.getAttribute("format");
+						formatValidators = self.getValueOfProperty("formatValidators");
+						if (typeof format === "string" && formatValidators[format] !== O[format] && typeof formatValidators[format] === "function" && !formatValidators[format].call(this, instance, report)) {
+							report.addError(instance, schema, "format", "String is not in the required format", format);
+						}
+					}
+				},
+				
+				"formatValidators" : {}
+			},
+			
+			"contentEncoding" : {
+				"type" : "string",
+				"optional" : true
+			},
+			
+			"default" : {
+				"type" : "any",
+				"optional" : true
+			},
+			
+			"maxDecimal" : {
+				"type" : "integer",
+				"optional" : true,
+				"minimum" : 0,
+								
+				"parser" : function (instance, self) {
+					if (instance.getType() === "number") {
+						return instance.getValue();
+					}
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var maxDecimal, decimals;
+					if (instance.getType() === "number") {
+						maxDecimal = schema.getAttribute("maxDecimal");
+						if (typeof maxDecimal === "number") {
+							decimals = instance.getValue().toString(10).split('.')[1];
+							if (decimals && decimals.length > maxDecimal) {
+								report.addError(instance, schema, "maxDecimal", "The number of decimal places is greater than the allowed maximum", maxDecimal);
+							}
+						}
+					}
+				}
+			},
+			
+			"disallow" : {
+				"type" : ["string", "array"],
+				"items" : {"type" : "string"},
+				"optional" : true,
+				"uniqueItems" : true,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "string" || instance.getType() === "array") {
+						return instance.getValue();
+					}
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var disallowedTypes = JSV.toArray(schema.getAttribute("disallow")),
+						x, xl, key, typeValidators, subreport;
+					
+					//for instances that are required to be a certain type
+					if (instance.getType() !== "undefined" && disallowedTypes && disallowedTypes.length) {
+						typeValidators = self.getValueOfProperty("typeValidators") || {};
+						
+						//ensure that type matches for at least one of the required types
+						for (x = 0, xl = disallowedTypes.length; x < xl; ++x) {
+							key = disallowedTypes[x];
+							if (JSV.isJSONSchema(key)) {  //this is supported draft-03 and on
+								subreport = JSV.createObject(report);
+								subreport.errors = [];
+								subreport.validated = JSV.clone(report.validated);
+								if (key.validate(instance, subreport, parent, parentSchema, name).errors.length === 0) {
+									//instance matches this schema
+									report.addError(instance, schema, "disallow", "Instance is a disallowed type", disallowedTypes);
+									return false;  
+								}
+							} else if (typeValidators[key] !== O[key] && typeof typeValidators[key] === "function") {
+								if (typeValidators[key](instance, report)) {
+									report.addError(instance, schema, "disallow", "Instance is a disallowed type", disallowedTypes);
+									return false;
+								}
+							} 
+							/*
+							else {
+								report.addError(instance, schema, "disallow", "Instance may be a disallowed type", disallowedTypes);
+								return false;
+							}
+							*/
+						}
+						
+						//if we get to this point, type is valid
+						return true;
+					}
+					//else, everything is allowed if no disallowed types are specified
+					return true;
+				},
+				
+				"typeValidators" : TYPE_VALIDATORS
+			},
+		
+			"extends" : {
+				"type" : [{"$ref" : "#"}, "array"],
+				"items" : {"$ref" : "#"},
+				"optional" : true,
+				"default" : {},
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "object") {
+						return instance.getEnvironment().createSchema(instance, self.getEnvironment().findSchema(self.resolveURI("#")));
+					} else if (instance.getType() === "array") {
+						return JSV.mapArray(instance.getProperties(), function (instance) {
+							return instance.getEnvironment().createSchema(instance, self.getEnvironment().findSchema(self.resolveURI("#")));
+						});
+					}
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var extensions = schema.getAttribute("extends"), x, xl;
+					if (extensions) {
+						if (JSV.isJSONSchema(extensions)) {
+							extensions.validate(instance, report, parent, parentSchema, name);
+						} else if (JSV.typeOf(extensions) === "array") {
+							for (x = 0, xl = extensions.length; x < xl; ++x) {
+								extensions[x].validate(instance, report, parent, parentSchema, name);
+							}
+						}
+					}
+				}
+			}
+		},
+		
+		"optional" : true,
+		"default" : {},
+		"fragmentResolution" : "dot-delimited",
+		
+		"parser" : function (instance, self) {
+			if (instance.getType() === "object") {
+				return instance.getEnvironment().createSchema(instance, self);
+			}
+		},
+		
+		"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+			var propNames = schema.getPropertyNames(), 
+				x, xl,
+				attributeSchemas = self.getAttribute("properties"),
+				strict = instance.getEnvironment().getOption("strict"),
+				validator;
+			
+			for (x in attributeSchemas) {
+				if (attributeSchemas[x] !== O[x]) {
+					if (attributeSchemas[x].getValueOfProperty("validationRequired")) {
+						JSV.pushUnique(propNames, x);
+					}
+					if (strict && attributeSchemas[x].getValueOfProperty("deprecated")) {
+						JSV.popFirst(propNames, x);
+					}
+				}
+			}
+			
+			for (x = 0, xl = propNames.length; x < xl; ++x) {
+				if (attributeSchemas[propNames[x]] !== O[propNames[x]]) {
+					validator = attributeSchemas[propNames[x]].getValueOfProperty("validator");
+					if (typeof validator === "function") {
+						validator(instance, schema, attributeSchemas[propNames[x]], report, parent, parentSchema, name);
+					}
+				}
+			}
+		}
+	};
+	
+	HYPERSCHEMA_00_JSON = {
+		"$schema" : "http://json-schema.org/draft-00/hyper-schema#",
+		"id" : "http://json-schema.org/draft-00/hyper-schema#",
+	
+		"properties" : {
+			"links" : {
+				"type" : "array",
+				"items" : {"$ref" : "links#"},
+				"optional" : true,
+				
+				"parser" : function (instance, self, arg) {
+					var links,
+						linkSchemaURI = self.getValueOfProperty("items")["$ref"],
+						linkSchema = self.getEnvironment().findSchema(linkSchemaURI),
+						linkParser = linkSchema && linkSchema.getValueOfProperty("parser"),
+						selfReferenceVariable;
+					arg = JSV.toArray(arg);
+					
+					if (typeof linkParser === "function") {
+						links = JSV.mapArray(instance.getProperties(), function (link) {
+							return linkParser(link, linkSchema);
+						});
+					} else {
+						links = JSV.toArray(instance.getValue());
+					}
+					
+					if (arg[0]) {
+						links = JSV.filterArray(links, function (link) {
+							return link["rel"] === arg[0];
+						});
+					}
+					
+					if (arg[1]) {
+						selfReferenceVariable = self.getValueOfProperty("selfReferenceVariable");
+						links = JSV.mapArray(links, function (link) {
+							var instance = arg[1],
+								href = link["href"];
+							href = href.replace(/\{(.+)\}/g, function (str, p1, offset, s) {
+								var value; 
+								if (p1 === selfReferenceVariable) {
+									value = instance.getValue();
+								} else {
+									value = instance.getValueOfProperty(p1);
+								}
+								return value !== undefined ? String(value) : "";
+							});
+							return href ? JSV.formatURI(instance.resolveURI(href)) : href;
+						});
+					}
+					
+					return links;
+				},
+				
+				"selfReferenceVariable" : "-this"
+			},
+			
+			"fragmentResolution" : {
+				"type" : "string",
+				"optional" : true,
+				"default" : "dot-delimited"
+			},
+			
+			"root" : {
+				"type" : "boolean",
+				"optional" : true,
+				"default" : false
+			},
+			
+			"readonly" : {
+				"type" : "boolean",
+				"optional" : true,
+				"default" : false
+			},
+			
+			"pathStart" : {
+				"type" : "string",
+				"optional" : true,
+				"format" : "uri",
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var pathStart;
+					if (instance.getType() !== "undefined") {
+						pathStart = schema.getAttribute("pathStart");
+						if (typeof pathStart === "string") {
+							//TODO: Find out what pathStart is relative to
+							if (instance.getURI().indexOf(pathStart) !== 0) {
+								report.addError(instance, schema, "pathStart", "Instance's URI does not start with " + pathStart, pathStart);
+							}
+						}
+					}
+				}
+			},
+			
+			"mediaType" : {
+				"type" : "string",
+				"optional" : true,
+				"format" : "media-type"
+			},
+			
+			"alternate" : {
+				"type" : "array",
+				"items" : {"$ref" : "#"},
+				"optional" : true
+			}
+		},
+		
+		"links" : [
+			{
+				"href" : "{$ref}",
+				"rel" : "full"
+			},
+			
+			{
+				"href" : "{$schema}",
+				"rel" : "describedby"
+			},
+			
+			{
+				"href" : "{id}",
+				"rel" : "self"
+			}
+		],
+				
+		"initializer" : function (instance) {
+			var link, extension, extended;
+			
+			//if there is a link to a different schema, set reference
+			link = instance._schema.getLink("describedby", instance);
+			if (link && instance._schema._uri !== link) {
+				instance.setReference("describedby", link);
+			}
+			
+			//if instance has a URI link to itself, update it's own URI
+			link = instance._schema.getLink("self", instance);
+			if (JSV.typeOf(link) === "string") {
+				instance._uri = JSV.formatURI(link);
+			}
+			
+			//if there is a link to the full representation, set reference
+			link = instance._schema.getLink("full", instance);
+			if (link && instance._uri !== link) {
+				instance.setReference("full", link);
+			}
+			
+			//extend schema
+			extension = instance.getAttribute("extends");
+			if (JSV.isJSONSchema(extension)) {
+				extended = JSV.inherits(extension, instance, true);
+				instance = instance._env.createSchema(extended, instance._schema, instance._uri);
+			}
+			
+			return instance;
+		}
+		
+		//not needed as JSV.inherits does the job for us
+		//"extends" : {"$ref" : "http://json-schema.org/schema#"}
+	};
+	
+	LINKS_00_JSON = {
+		"$schema" : "http://json-schema.org/draft-00/hyper-schema#",
+		"id" : "http://json-schema.org/draft-00/links#",
+		"type" : "object",
+		
+		"properties" : {
+			"href" : {
+				"type" : "string"
+			},
+			
+			"rel" : {
+				"type" : "string"
+			},
+			
+			"method" : {
+				"type" : "string",
+				"default" : "GET",
+				"optional" : true
+			},
+			
+			"enctype" : {
+				"type" : "string",
+				"requires" : "method",
+				"optional" : true
+			},
+			
+			"properties" : {
+				"type" : "object",
+				"additionalProperties" : {"$ref" : "hyper-schema#"},
+				"optional" : true,
+				
+				"parser" : function (instance, self, arg) {
+					var env = instance.getEnvironment(),
+						selfEnv = self.getEnvironment(),
+						additionalPropertiesSchemaURI = self.getValueOfProperty("additionalProperties")["$ref"];
+					if (instance.getType() === "object") {
+						if (arg) {
+							return env.createSchema(instance.getProperty(arg), selfEnv.findSchema(self.resolveURI(additionalPropertiesSchemaURI)));
+						} else {
+							return JSV.mapObject(instance.getProperties(), function (instance) {
+								return env.createSchema(instance, selfEnv.findSchema(self.resolveURI(additionalPropertiesSchemaURI)));
+							});
+						}
+					}
+				}
+			}
+		},
+		
+		"parser" : function (instance, self) {
+			var selfProperties = self.getProperty("properties");
+			if (instance.getType() === "object") {
+				return JSV.mapObject(instance.getProperties(), function (property, key) {
+					var propertySchema = selfProperties.getProperty(key),
+						parser = propertySchema && propertySchema.getValueOfProperty("parser");
+					if (typeof parser === "function") {
+						return parser(property, propertySchema);
+					}
+					//else
+					return property.getValue();
+				});
+			}
+			return instance.getValue();
+		}
+	};
+	
+	ENVIRONMENT.setOption("defaultFragmentDelimiter", ".");
+	ENVIRONMENT.setOption("defaultSchemaURI", "http://json-schema.org/draft-00/schema#");  //updated later
+	
+	SCHEMA_00 = ENVIRONMENT.createSchema(SCHEMA_00_JSON, true, "http://json-schema.org/draft-00/schema#");
+	HYPERSCHEMA_00 = ENVIRONMENT.createSchema(JSV.inherits(SCHEMA_00, ENVIRONMENT.createSchema(HYPERSCHEMA_00_JSON, true, "http://json-schema.org/draft-00/hyper-schema#"), true), true, "http://json-schema.org/draft-00/hyper-schema#");
+	
+	ENVIRONMENT.setOption("defaultSchemaURI", "http://json-schema.org/draft-00/hyper-schema#");
+	
+	LINKS_00 = ENVIRONMENT.createSchema(LINKS_00_JSON, HYPERSCHEMA_00, "http://json-schema.org/draft-00/links#");
+	
+	//
+	// draft-01
+	//
+		
+	SCHEMA_01_JSON = JSV.inherits(SCHEMA_00_JSON, {
+		"$schema" : "http://json-schema.org/draft-01/hyper-schema#",
+		"id" : "http://json-schema.org/draft-01/schema#"
+	});
+	
+	HYPERSCHEMA_01_JSON = JSV.inherits(HYPERSCHEMA_00_JSON, {
+		"$schema" : "http://json-schema.org/draft-01/hyper-schema#",
+		"id" : "http://json-schema.org/draft-01/hyper-schema#"
+	});
+	
+	LINKS_01_JSON = JSV.inherits(LINKS_00_JSON, {
+		"$schema" : "http://json-schema.org/draft-01/hyper-schema#",
+		"id" : "http://json-schema.org/draft-01/links#"
+	});
+	
+	ENVIRONMENT.setOption("defaultSchemaURI", "http://json-schema.org/draft-01/schema#");  //update later
+	
+	SCHEMA_01 = ENVIRONMENT.createSchema(SCHEMA_01_JSON, true, "http://json-schema.org/draft-01/schema#");
+	HYPERSCHEMA_01 = ENVIRONMENT.createSchema(JSV.inherits(SCHEMA_01, ENVIRONMENT.createSchema(HYPERSCHEMA_01_JSON, true, "http://json-schema.org/draft-01/hyper-schema#"), true), true, "http://json-schema.org/draft-01/hyper-schema#");
+	
+	ENVIRONMENT.setOption("defaultSchemaURI", "http://json-schema.org/draft-01/hyper-schema#");
+	
+	LINKS_01 = ENVIRONMENT.createSchema(LINKS_01_JSON, HYPERSCHEMA_01, "http://json-schema.org/draft-01/links#");
+	
+	//
+	// draft-02
+	//
+	
+	SCHEMA_02_JSON = JSV.inherits(SCHEMA_01_JSON, {
+		"$schema" : "http://json-schema.org/draft-02/hyper-schema#",
+		"id" : "http://json-schema.org/draft-02/schema#",
+		
+		"properties" : {
+			"uniqueItems" : {
+				"type" : "boolean",
+				"optional" : true,
+				"default" : false,
+				
+				"parser" : function (instance, self) {
+					return !!instance.getValue();
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var value, x, xl, y, yl;
+					if (instance.getType() === "array" && schema.getAttribute("uniqueItems")) {
+						value = instance.getProperties();
+						for (x = 0, xl = value.length - 1; x < xl; ++x) {
+							for (y = x + 1, yl = value.length; y < yl; ++y) {
+								if (value[x].equals(value[y])) {
+									report.addError(instance, schema, "uniqueItems", "Array can only contain unique items", { x : x, y : y });
+								}
+							}
+						}
+					}
+				}
+			},
+			
+			"maxDecimal" : {
+				"deprecated" : true
+			},
+			
+			"divisibleBy" : {
+				"type" : "number",
+				"minimum" : 0,
+				"minimumCanEqual" : false,
+				"optional" : true,
+				
+				"parser" : function (instance, self) {
+					if (instance.getType() === "number") {
+						return instance.getValue();
+					}
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var divisor, value, digits;
+					if (instance.getType() === "number") {
+						divisor = schema.getAttribute("divisibleBy");
+						if (divisor === 0) {
+							report.addError(instance, schema, "divisibleBy", "Nothing is divisible by 0", divisor);
+						} else if (divisor !== 1) {
+							value = instance.getValue();
+							digits = Math.max((value.toString().split(".")[1] || " ").length, (divisor.toString().split(".")[1] || " ").length);
+							digits = parseFloat(((value / divisor) % 1).toFixed(digits));  //cut out floating point errors
+							if (0 < digits && digits < 1) {
+								report.addError(instance, schema, "divisibleBy", "Number is not divisible by " + divisor, divisor);
+							}
+						}
+					}
+				}
+			}
+		},
+		
+		"fragmentResolution" : "slash-delimited"
+	});
+	
+	HYPERSCHEMA_02_JSON = JSV.inherits(HYPERSCHEMA_01_JSON, {
+		"id" : "http://json-schema.org/draft-02/hyper-schema#",
+		
+		"properties" : {
+			"fragmentResolution" : {
+				"default" : "slash-delimited"
+			}
+		}
+	});
+	
+	LINKS_02_JSON = JSV.inherits(LINKS_01_JSON, {
+		"$schema" : "http://json-schema.org/draft-02/hyper-schema#",
+		"id" : "http://json-schema.org/draft-02/links#",
+		
+		"properties" : {
+			"targetSchema" : {
+				"$ref" : "hyper-schema#",
+				
+				//need this here because parsers are run before links are resolved
+				"parser" : HYPERSCHEMA_01.getAttribute("parser")
+			}
+		}
+	});
+	
+	ENVIRONMENT.setOption("defaultFragmentDelimiter", "/");
+	ENVIRONMENT.setOption("defaultSchemaURI", "http://json-schema.org/draft-02/schema#");  //update later
+	
+	SCHEMA_02 = ENVIRONMENT.createSchema(SCHEMA_02_JSON, true, "http://json-schema.org/draft-02/schema#");
+	HYPERSCHEMA_02 = ENVIRONMENT.createSchema(JSV.inherits(SCHEMA_02, ENVIRONMENT.createSchema(HYPERSCHEMA_02_JSON, true, "http://json-schema.org/draft-02/hyper-schema#"), true), true, "http://json-schema.org/draft-02/hyper-schema#");
+	
+	ENVIRONMENT.setOption("defaultSchemaURI", "http://json-schema.org/draft-02/hyper-schema#");
+	
+	LINKS_02 = ENVIRONMENT.createSchema(LINKS_02_JSON, HYPERSCHEMA_02, "http://json-schema.org/draft-02/links#");
+	
+	//
+	// draft-03
+	//
+	
+	function getMatchedPatternProperties(instance, schema, report, self) {
+		var matchedProperties = {}, patternProperties, pattern, regexp, properties, key;
+		
+		if (instance.getType() === "object") {
+			patternProperties = schema.getAttribute("patternProperties");
+			properties = instance.getProperties();
+			for (pattern in patternProperties) {
+				if (patternProperties[pattern] !== O[pattern]) {
+					regexp = null;
+					try {
+						regexp = new RegExp(pattern);
+					} catch (e) {
+						if (report) {
+							report.addError(schema, self, "patternProperties", "Invalid pattern", pattern);
+						}
+					}
+					
+					if (regexp) {
+						for (key in properties) {
+							if (properties[key] !== O[key]  && regexp.test(key)) {
+								matchedProperties[key] = matchedProperties[key] ? JSV.pushUnique(matchedProperties[key], patternProperties[pattern]) : [ patternProperties[pattern] ];
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		return matchedProperties;
+	}
+	
+	SCHEMA_03_JSON = JSV.inherits(SCHEMA_02_JSON, {
+		"$schema" : "http://json-schema.org/draft-03/schema#",
+		"id" : "http://json-schema.org/draft-03/schema#",
+		
+		"properties" : {
+			"patternProperties" : {
+				"type" : "object",
+				"additionalProperties" : {"$ref" : "#"},
+				"default" : {},
+				
+				"parser" : SCHEMA_02.getValueOfProperty("properties")["properties"]["parser"],
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var matchedProperties, key, x;
+					if (instance.getType() === "object") {
+						matchedProperties = getMatchedPatternProperties(instance, schema, report, self);
+						for (key in matchedProperties) {
+							if (matchedProperties[key] !== O[key]) {
+								x = matchedProperties[key].length;
+								while (x--) {
+									matchedProperties[key][x].validate(instance.getProperty(key), report, instance, schema, key);
+								}
+							}
+						}
+					}
+				}
+			},
+			
+			"additionalProperties" : {
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var additionalProperties, propertySchemas, properties, matchedProperties, key;
+					if (instance.getType() === "object") {
+						additionalProperties = schema.getAttribute("additionalProperties");
+						propertySchemas = schema.getAttribute("properties") || {};
+						properties = instance.getProperties();
+						matchedProperties = getMatchedPatternProperties(instance, schema);
+						for (key in properties) {
+							if (properties[key] !== O[key] && properties[key] && propertySchemas[key] === O[key] && matchedProperties[key] === O[key]) {
+								if (JSV.isJSONSchema(additionalProperties)) {
+									additionalProperties.validate(properties[key], report, instance, schema, key);
+								} else if (additionalProperties === false) {
+									report.addError(instance, schema, "additionalProperties", "Additional properties are not allowed", additionalProperties);
+								}
+							}
+						}
+					}
+				}
+			},
+			
+			"items" : {
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var properties, items, x, xl, itemSchema, additionalItems;
+					
+					if (instance.getType() === "array") {
+						properties = instance.getProperties();
+						items = schema.getAttribute("items");
+						additionalItems = schema.getAttribute("additionalItems");
+						
+						if (JSV.typeOf(items) === "array") {
+							for (x = 0, xl = properties.length; x < xl; ++x) {
+								itemSchema = items[x] || additionalItems;
+								if (itemSchema !== false) {
+									itemSchema.validate(properties[x], report, instance, schema, x);
+								} else {
+									report.addError(instance, schema, "additionalItems", "Additional items are not allowed", itemSchema);
+								}
+							}
+						} else {
+							itemSchema = items || additionalItems;
+							for (x = 0, xl = properties.length; x < xl; ++x) {
+								itemSchema.validate(properties[x], report, instance, schema, x);
+							}
+						}
+					}
+				}
+			},
+			
+			"additionalItems" : {
+				"type" : [{"$ref" : "#"}, "boolean"],
+				"default" : {},
+				
+				"parser" : SCHEMA_02.getValueOfProperty("properties")["additionalProperties"]["parser"],
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var additionalItems, properties, x, xl;
+					//only validate if the "items" attribute is undefined
+					if (instance.getType() === "array" && schema.getProperty("items").getType() === "undefined") {
+						additionalItems = schema.getAttribute("additionalItems");
+						properties = instance.getProperties();
+						
+						if (additionalItems !== false) {
+							for (x = 0, xl = properties.length; x < xl; ++x) {
+								additionalItems.validate(properties[x], report, instance, schema, x);
+							}
+						} else if (properties.length) {
+							report.addError(instance, schema, "additionalItems", "Additional items are not allowed", additionalItems);
+						}
+					}
+				}
+			},
+			
+			"optional" : {
+				"validationRequired" : false,
+				"deprecated" : true
+			},
+			
+			"required" : {
+				"type" : "boolean",
+				"default" : false,
+				
+				"parser" : function (instance, self) {
+					return !!instance.getValue();
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					if (instance.getType() === "undefined" && schema.getAttribute("required")) {
+						report.addError(instance, schema, "required", "Property is required", true);
+					}
+				}
+			},
+			
+			"requires" : {
+				"deprecated" : true
+			},
+			
+			"dependencies" : {
+				"type" : "object",
+				"additionalProperties" : {
+					"type" : ["string", "array", {"$ref" : "#"}],
+					"items" : {
+						"type" : "string"
+					}
+				},
+				"default" : {},
+				
+				"parser" : function (instance, self, arg) {
+					function parseProperty(property) {
+						var type = property.getType();
+						if (type === "string" || type === "array") {
+							return property.getValue();
+						} else if (type === "object") {
+							return property.getEnvironment().createSchema(property, self.getEnvironment().findSchema(self.resolveURI("#")));
+						}
+					}
+					
+					if (instance.getType() === "object") {
+						if (arg) {
+							return parseProperty(instance.getProperty(arg));
+						} else {
+							return JSV.mapObject(instance.getProperties(), parseProperty);
+						}
+					}
+					//else
+					return {};
+				},
+				
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var dependencies, key, dependency, type, x, xl;
+					if (instance.getType() === "object") {
+						dependencies = schema.getAttribute("dependencies");
+						for (key in dependencies) {
+							if (dependencies[key] !== O[key] && instance.getProperty(key).getType() !== "undefined") {
+								dependency = dependencies[key];
+								type = JSV.typeOf(dependency);
+								if (type === "string") {
+									if (instance.getProperty(dependency).getType() === "undefined") {
+										report.addError(instance, schema, "dependencies", 'Property "' + key + '" requires sibling property "' + dependency + '"', dependencies);
+									}
+								} else if (type === "array") {
+									for (x = 0, xl = dependency.length; x < xl; ++x) {
+										if (instance.getProperty(dependency[x]).getType() === "undefined") {
+											report.addError(instance, schema, "dependencies", 'Property "' + key + '" requires sibling property "' + dependency[x] + '"', dependencies);
+										}
+									}
+								} else if (JSV.isJSONSchema(dependency)) {
+									dependency.validate(instance, report);
+								}
+							}
+						}
+					}
+				}
+			},
+			
+			"minimumCanEqual" : {
+				"deprecated" : true
+			},
+			
+			"maximumCanEqual" : {
+				"deprecated" : true
+			},
+			
+			"exclusiveMinimum" : {
+				"type" : "boolean",
+				"default" : false,
+				
+				"parser" : function (instance, self) {
+					return !!instance.getValue();
+				}
+			},
+			
+			"exclusiveMaximum" : {
+				"type" : "boolean",
+				"default" : false,
+				
+				"parser" : function (instance, self) {
+					return !!instance.getValue();
+				}
+			},
+			
+			"minimum" : {
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var minimum, exclusiveMinimum;
+					if (instance.getType() === "number") {
+						minimum = schema.getAttribute("minimum");
+						exclusiveMinimum = schema.getAttribute("exclusiveMinimum") || (!instance.getEnvironment().getOption("strict") && !schema.getAttribute("minimumCanEqual"));
+						if (typeof minimum === "number" && (instance.getValue() < minimum || (exclusiveMinimum === true && instance.getValue() === minimum))) {
+							report.addError(instance, schema, "minimum", "Number is less than the required minimum value", minimum);
+						}
+					}
+				}
+			},
+			
+			"maximum" : {
+				"validator" : function (instance, schema, self, report, parent, parentSchema, name) {
+					var maximum, exclusiveMaximum;
+					if (instance.getType() === "number") {
+						maximum = schema.getAttribute("maximum");
+						exclusiveMaximum = schema.getAttribute("exclusiveMaximum") || (!instance.getEnvironment().getOption("strict") && !schema.getAttribute("maximumCanEqual"));
+						if (typeof maximum === "number" && (instance.getValue() > maximum || (exclusiveMaximum === true && instance.getValue() === maximum))) {
+							report.addError(instance, schema, "maximum", "Number is greater than the required maximum value", maximum);
+						}
+					}
+				}
+			},
+			
+			"contentEncoding" : {
+				"deprecated" : true
+			},
+			
+			"divisibleBy" : {
+				"exclusiveMinimum" : true
+			},
+			
+			"disallow" : {
+				"items" : {
+					"type" : ["string", {"$ref" : "#"}]
+				},
+				
+				"parser" : SCHEMA_02_JSON["properties"]["type"]["parser"]
+			},
+			
+			"id" : {
+				"type" : "string",
+				"format" : "uri"
+			},
+			
+			"$ref" : {
+				"type" : "string",
+				"format" : "uri"
+			},
+			
+			"$schema" : {
+				"type" : "string",
+				"format" : "uri"
+			}
+		},
+		
+		"dependencies" : {
+			"exclusiveMinimum" : "minimum",
+			"exclusiveMaximum" : "maximum"
+		},
+		
+		"initializer" : function (instance) {
+			var link, extension, extended,
+				schemaLink = instance.getValueOfProperty("$schema"),
+				refLink = instance.getValueOfProperty("$ref"),
+				idLink = instance.getValueOfProperty("id");
+			
+			//if there is a link to a different schema, set reference
+			if (schemaLink) {
+				link = instance.resolveURI(schemaLink);
+				instance.setReference("describedby", link);
+			}
+			
+			//if instance has a URI link to itself, update it's own URI
+			if (idLink) {
+				link = instance.resolveURI(idLink);
+				if (JSV.typeOf(link) === "string") {
+					instance._uri = JSV.formatURI(link);
+				}
+			}
+			
+			//if there is a link to the full representation, set reference
+			if (refLink) {
+				link = instance.resolveURI(refLink);
+				instance.setReference("full", link);
+			}
+			
+			//extend schema
+			extension = instance.getAttribute("extends");
+			if (JSV.isJSONSchema(extension)) {
+				extended = JSV.inherits(extension, instance, true);
+				instance = instance._env.createSchema(extended, instance._schema, instance._uri);
+			}
+			
+			return instance;
+		}
+	});
+	
+	HYPERSCHEMA_03_JSON = JSV.inherits(HYPERSCHEMA_02_JSON, {
+		"$schema" : "http://json-schema.org/draft-03/hyper-schema#",
+		"id" : "http://json-schema.org/draft-03/hyper-schema#",
+		
+		"properties" : {
+			"links" : {
+				"selfReferenceVariable" : "@"
+			},
+			
+			"root" : {
+				"deprecated" : true
+			},
+			
+			"contentEncoding" : {
+				"deprecated" : false  //moved from core to hyper
+			},
+			
+			"alternate" : {
+				"deprecated" : true
+			}
+		}
+	});
+	
+	LINKS_03_JSON = JSV.inherits(LINKS_02_JSON, {
+		"$schema" : "http://json-schema.org/draft-03/hyper-schema#",
+		"id" : "http://json-schema.org/draft-03/links#",
+		
+		"properties" : {
+			"href" : {
+				"required" : true,
+				"format" : "link-description-object-template"
+			},
+			
+			"rel" : {
+				"required" : true
+			},
+			
+			"properties" : {
+				"deprecated" : true
+			},
+			
+			"schema" : {"$ref" : "http://json-schema.org/draft-03/hyper-schema#"}
+		}
+	});
+	
+	ENVIRONMENT.setOption("defaultSchemaURI", "http://json-schema.org/draft-03/schema#");  //update later
+	
+	SCHEMA_03 = ENVIRONMENT.createSchema(SCHEMA_03_JSON, true, "http://json-schema.org/draft-03/schema#");
+	HYPERSCHEMA_03 = ENVIRONMENT.createSchema(JSV.inherits(SCHEMA_03, ENVIRONMENT.createSchema(HYPERSCHEMA_03_JSON, true, "http://json-schema.org/draft-03/hyper-schema#"), true), true, "http://json-schema.org/draft-03/hyper-schema#");
+	
+	ENVIRONMENT.setOption("defaultSchemaURI", "http://json-schema.org/draft-03/hyper-schema#");
+	
+	LINKS_03 = ENVIRONMENT.createSchema(LINKS_03_JSON, true, "http://json-schema.org/draft-03/links#");
+	
+	ENVIRONMENT.setOption("latestJSONSchemaSchemaURI", "http://json-schema.org/draft-03/schema#");
+	ENVIRONMENT.setOption("latestJSONSchemaHyperSchemaURI", "http://json-schema.org/draft-03/hyper-schema#");
+	ENVIRONMENT.setOption("latestJSONSchemaLinksURI", "http://json-schema.org/draft-03/links#");
+	
+	//
+	//Latest JSON Schema
+	//
+	
+	//Hack, but WAY faster than instantiating a new schema
+	ENVIRONMENT._schemas["http://json-schema.org/schema#"] = SCHEMA_03;
+	ENVIRONMENT._schemas["http://json-schema.org/hyper-schema#"] = HYPERSCHEMA_03;
+	ENVIRONMENT._schemas["http://json-schema.org/links#"] = LINKS_03;
+	
+	//
+	//register environment
+	//
+	
+	JSV.registerEnvironment("json-schema-draft-03", ENVIRONMENT);
+	if (!JSV.getDefaultEnvironmentID() || JSV.getDefaultEnvironmentID() === "json-schema-draft-01" || JSV.getDefaultEnvironmentID() === "json-schema-draft-02") {
+		JSV.setDefaultEnvironmentID("json-schema-draft-03");
+	}
+	
+}());}, "jsv": function(exports, require, module) {/**
+ * JSV: JSON Schema Validator
+ * 
+ * @fileOverview A JavaScript implementation of a extendable, fully compliant JSON Schema validator.
+ * @author <a href="mailto:gary.court@gmail.com">Gary Court</a>
+ * @version 4.0.2
+ * @see http://github.com/garycourt/JSV
+ */
+
+/*
+ * Copyright 2010 Gary Court. All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, are
+ * permitted provided that the following conditions are met:
+ * 
+ *    1. Redistributions of source code must retain the above copyright notice, this list of
+ *       conditions and the following disclaimer.
+ * 
+ *    2. Redistributions in binary form must reproduce the above copyright notice, this list
+ *       of conditions and the following disclaimer in the documentation and/or other materials
+ *       provided with the distribution.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY GARY COURT ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL GARY COURT OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * 
+ * The views and conclusions contained in the software and documentation are those of the
+ * authors and should not be interpreted as representing official policies, either expressed
+ * or implied, of Gary Court or the JSON Schema specification.
+ */
+
+/*jslint white: true, sub: true, onevar: true, undef: true, eqeqeq: true, newcap: true, immed: true, indent: 4 */
+
+var exports = exports || this,
+	require = require || function () {
+		return exports;
+	};
+
+(function () {
+	
+	var URI = require("./uri/uri").URI,
+		O = {},
+		I2H = "0123456789abcdef".split(""),
+		mapArray, filterArray, searchArray,
+		
+		JSV;
+	
+	//
+	// Utility functions
+	//
+	
+	function typeOf(o) {
+		return o === undefined ? "undefined" : (o === null ? "null" : Object.prototype.toString.call(o).split(" ").pop().split("]").shift().toLowerCase());
+	}
+	
+	/** @inner */
+	function F() {}
+	
+	function createObject(proto) {
+		F.prototype = proto || {};
+		return new F();
+	}
+	
+	function mapObject(obj, func, scope) {
+		var newObj = {}, key;
+		for (key in obj) {
+			if (obj[key] !== O[key]) {
+				newObj[key] = func.call(scope, obj[key], key, obj);
+			}
+		}
+		return newObj;
+	}
+	
+	/** @ignore */
+	mapArray = function (arr, func, scope) {
+		var x = 0, xl = arr.length, newArr = new Array(xl);
+		for (; x < xl; ++x) {
+			newArr[x] = func.call(scope, arr[x], x, arr);
+		}
+		return newArr;
+	};
+		
+	if (Array.prototype.map) {
+		/** @ignore */
+		mapArray = function (arr, func, scope) {
+			return Array.prototype.map.call(arr, func, scope);
+		};
+	}
+	
+	/** @ignore */
+	filterArray = function (arr, func, scope) {
+		var x = 0, xl = arr.length, newArr = [];
+		for (; x < xl; ++x) {
+			if (func.call(scope, arr[x], x, arr)) {
+				newArr[newArr.length] = arr[x];
+			}
+		}
+		return newArr;
+	};
+	
+	if (Array.prototype.filter) {
+		/** @ignore */
+		filterArray = function (arr, func, scope) {
+			return Array.prototype.filter.call(arr, func, scope);
+		};
+	}
+	
+	/** @ignore */
+	searchArray = function (arr, o) {
+		var x = 0, xl = arr.length;
+		for (; x < xl; ++x) {
+			if (arr[x] === o) {
+				return x;
+			}
+		}
+		return -1;
+	};
+	
+	if (Array.prototype.indexOf) {
+		/** @ignore */
+		searchArray = function (arr, o) {
+			return Array.prototype.indexOf.call(arr, o);
+		};
+	}
+	
+	function toArray(o) {
+		return o !== undefined && o !== null ? (o instanceof Array && !o.callee ? o : (typeof o.length !== "number" || o.split || o.setInterval || o.call ? [ o ] : Array.prototype.slice.call(o))) : [];
+	}
+	
+	function keys(o) {
+		var result = [], key;
+		
+		switch (typeOf(o)) {
+		case "object":
+			for (key in o) {
+				if (o[key] !== O[key]) {
+					result[result.length] = key;
+				}
+			}
+			break;
+		case "array":
+			for (key = o.length - 1; key >= 0; --key) {
+				result[key] = key;
+			}
+			break;
+		}
+		
+		return result;
+	}
+	
+	function pushUnique(arr, o) {
+		if (searchArray(arr, o) === -1) {
+			arr.push(o);
+		}
+		return arr;
+	}
+	
+	function popFirst(arr, o) {
+		var index = searchArray(arr, o);
+		if (index > -1) {
+			arr.splice(index, 1);
+		}
+		return arr;
+	}
+	
+	function randomUUID() {
+		return [
+			I2H[Math.floor(Math.random() * 0x10)],
+			I2H[Math.floor(Math.random() * 0x10)],
+			I2H[Math.floor(Math.random() * 0x10)],
+			I2H[Math.floor(Math.random() * 0x10)],
+			I2H[Math.floor(Math.random() * 0x10)],
+			I2H[Math.floor(Math.random() * 0x10)],
+			I2H[Math.floor(Math.random() * 0x10)],
+			I2H[Math.floor(Math.random() * 0x10)],
+			"-",
+			I2H[Math.floor(Math.random() * 0x10)],
+			I2H[Math.floor(Math.random() * 0x10)],
+			I2H[Math.floor(Math.random() * 0x10)],
+			I2H[Math.floor(Math.random() * 0x10)],
+			"-4",  //set 4 high bits of time_high field to version
+			I2H[Math.floor(Math.random() * 0x10)],
+			I2H[Math.floor(Math.random() * 0x10)],
+			I2H[Math.floor(Math.random() * 0x10)],
+			"-",
+			I2H[(Math.floor(Math.random() * 0x10) & 0x3) | 0x8],  //specify 2 high bits of clock sequence
+			I2H[Math.floor(Math.random() * 0x10)],
+			I2H[Math.floor(Math.random() * 0x10)],
+			I2H[Math.floor(Math.random() * 0x10)],
+			"-",
+			I2H[Math.floor(Math.random() * 0x10)],
+			I2H[Math.floor(Math.random() * 0x10)],
+			I2H[Math.floor(Math.random() * 0x10)],
+			I2H[Math.floor(Math.random() * 0x10)],
+			I2H[Math.floor(Math.random() * 0x10)],
+			I2H[Math.floor(Math.random() * 0x10)],
+			I2H[Math.floor(Math.random() * 0x10)],
+			I2H[Math.floor(Math.random() * 0x10)],
+			I2H[Math.floor(Math.random() * 0x10)],
+			I2H[Math.floor(Math.random() * 0x10)],
+			I2H[Math.floor(Math.random() * 0x10)],
+			I2H[Math.floor(Math.random() * 0x10)]
+		].join("");
+	}
+	
+	function escapeURIComponent(str) {
+		return encodeURIComponent(str).replace(/!/g, '%21').replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29').replace(/\*/g, '%2A');
+	}
+	
+	function formatURI(uri) {
+		if (typeof uri === "string" && uri.indexOf("#") === -1) {
+			uri += "#";
+		}
+		return uri;
+	}
+	
+	function stripInstances(o) {
+		if (o instanceof JSONInstance) {
+			return o.getURI();
+		}
+		
+		switch (typeOf(o)) {
+		case "undefined":
+		case "null":
+		case "boolean":
+		case "number":
+		case "string":
+			return o;  //do nothing
+		
+		case "object":
+			return mapObject(o, stripInstances);
+		
+		case "array":
+			return mapArray(o, stripInstances);
+		
+		default:
+			return o.toString();
+		}
+	}
+	
+	/**
+	 * The exception that is thrown when a schema fails to be created.
+	 * 
+	 * @name InitializationError
+	 * @class
+	 * @param {JSONInstance|String} instance The instance (or instance URI) that is invalid
+	 * @param {JSONSchema|String} schema The schema (or schema URI) that was validating the instance
+	 * @param {String} attr The attribute that failed to validated
+	 * @param {String} message A user-friendly message on why the schema attribute failed to validate the instance
+	 * @param {Any} details The value of the schema attribute
+	 */
+	
+	function InitializationError(instance, schema, attr, message, details) {
+		Error.call(this, message);
+		
+		this.uri = instance instanceof JSONInstance ? instance.getURI() : instance;
+		this.schemaUri = schema instanceof JSONInstance ? schema.getURI() : schema;
+		this.attribute = attr;
+		this.message = message;
+		this.description = message;  //IE
+		this.details = details;
+	}
+	
+	InitializationError.prototype = new Error();
+	InitializationError.prototype.constructor = InitializationError;
+	InitializationError.prototype.name = "InitializationError";
+	
+	/**
+	 * Defines an error, found by a schema, with an instance.
+	 * This class can only be instantiated by {@link Report#addError}. 
+	 * 
+	 * @name ValidationError
+	 * @class
+	 * @see Report#addError
+	 */
+	
+	/**
+	 * The URI of the instance that has the error.
+	 * 
+	 * @name ValidationError.prototype.uri
+	 * @type String
+	 */
+	
+	/**
+	 * The URI of the schema that generated the error.
+	 * 
+	 * @name ValidationError.prototype.schemaUri
+	 * @type String
+	 */
+	
+	/**
+	 * The name of the schema attribute that generated the error.
+	 * 
+	 * @name ValidationError.prototype.attribute
+	 * @type String
+	 */
+	
+	/**
+	 * An user-friendly (English) message about what failed to validate.
+	 * 
+	 * @name ValidationError.prototype.message
+	 * @type String
+	 */
+	
+	/**
+	 * The value of the schema attribute that generated the error.
+	 * 
+	 * @name ValidationError.prototype.details
+	 * @type Any
+	 */
+	
+	/**
+	 * Reports are returned from validation methods to describe the result of a validation.
+	 * 
+	 * @name Report
+	 * @class
+	 * @see JSONSchema#validate
+	 * @see Environment#validate
+	 */
+	
+	function Report() {
+		/**
+		 * An array of {@link ValidationError} objects that define all the errors generated by the schema against the instance.
+		 * 
+		 * @name Report.prototype.errors
+		 * @type Array
+		 * @see Report#addError
+		 */
+		this.errors = [];
+		
+		/**
+		 * A hash table of every instance and what schemas were validated against it.
+		 * <p>
+		 * The key of each item in the table is the URI of the instance that was validated.
+		 * The value of this key is an array of strings of URIs of the schema that validated it.
+		 * </p>
+		 * 
+		 * @name Report.prototype.validated
+		 * @type Object
+		 * @see Report#registerValidation
+		 * @see Report#isValidatedBy
+		 */
+		this.validated = {};
+		
+		/**
+		 * If the report is generated by {@link Environment#validate}, this field is the generated instance.
+		 * 
+		 * @name Report.prototype.instance
+		 * @type JSONInstance
+		 * @see Environment#validate
+		 */
+		
+		/**
+		 * If the report is generated by {@link Environment#validate}, this field is the generated schema.
+		 * 
+		 * @name Report.prototype.schema
+		 * @type JSONSchema
+		 * @see Environment#validate
+		 */
+		 
+		/**
+		 * If the report is generated by {@link Environment#validate}, this field is the schema's schema.
+		 * This value is the same as calling <code>schema.getSchema()</code>.
+		 * 
+		 * @name Report.prototype.schemaSchema
+		 * @type JSONSchema
+		 * @see Environment#validate
+		 * @see JSONSchema#getSchema
+		 */
+	}
+	
+	/**
+	 * Adds a {@link ValidationError} object to the <a href="#errors"><code>errors</code></a> field.
+	 * 
+	 * @param {JSONInstance|String} instance The instance (or instance URI) that is invalid
+	 * @param {JSONSchema|String} schema The schema (or schema URI) that was validating the instance
+	 * @param {String} attr The attribute that failed to validated
+	 * @param {String} message A user-friendly message on why the schema attribute failed to validate the instance
+	 * @param {Any} details The value of the schema attribute
+	 */
+	
+	Report.prototype.addError = function (instance, schema, attr, message, details) {
+		this.errors.push({
+			uri : instance instanceof JSONInstance ? instance.getURI() : instance,
+			schemaUri : schema instanceof JSONInstance ? schema.getURI() : schema,
+			attribute : attr,
+			message : message,
+			details : stripInstances(details)
+		});
+	};
+	
+	/**
+	 * Registers that the provided instance URI has been validated by the provided schema URI. 
+	 * This is recorded in the <a href="#validated"><code>validated</code></a> field.
+	 * 
+	 * @param {String} uri The URI of the instance that was validated
+	 * @param {String} schemaUri The URI of the schema that validated the instance
+	 */
+	
+	Report.prototype.registerValidation = function (uri, schemaUri) {
+		if (!this.validated[uri]) {
+			this.validated[uri] = [ schemaUri ];
+		} else {
+			this.validated[uri].push(schemaUri);
+		}
+	};
+	
+	/**
+	 * Returns if an instance with the provided URI has been validated by the schema with the provided URI. 
+	 * 
+	 * @param {String} uri The URI of the instance
+	 * @param {String} schemaUri The URI of a schema
+	 * @returns {Boolean} If the instance has been validated by the schema.
+	 */
+	
+	Report.prototype.isValidatedBy = function (uri, schemaUri) {
+		return !!this.validated[uri] && searchArray(this.validated[uri], schemaUri) !== -1;
+	};
+	
+	/**
+	 * A wrapper class for binding an Environment, URI and helper methods to an instance. 
+	 * This class is most commonly instantiated with {@link Environment#createInstance}.
+	 * 
+	 * @name JSONInstance
+	 * @class
+	 * @param {Environment} env The environment this instance belongs to
+	 * @param {JSONInstance|Any} json The value of the instance
+	 * @param {String} [uri] The URI of the instance. If undefined, the URI will be a randomly generated UUID. 
+	 * @param {String} [fd] The fragment delimiter for properties. If undefined, uses the environment default.
+	 */
+	
+	function JSONInstance(env, json, uri, fd) {
+		if (json instanceof JSONInstance) {
+			if (typeof fd !== "string") {
+				fd = json._fd;
+			}
+			if (typeof uri !== "string") {
+				uri = json._uri;
+			}
+			json = json._value;
+		}
+		
+		if (typeof uri !== "string") {
+			uri = "urn:uuid:" + randomUUID() + "#";
+		} else if (uri.indexOf(":") === -1) {
+			uri = formatURI(URI.resolve("urn:uuid:" + randomUUID() + "#", uri));
+		}
+		
+		this._env = env;
+		this._value = json;
+		this._uri = uri;
+		this._fd = fd || this._env._options["defaultFragmentDelimiter"];
+	}
+	
+	/**
+	 * Returns the environment the instance is bound to.
+	 * 
+	 * @returns {Environment} The environment of the instance
+	 */
+	
+	JSONInstance.prototype.getEnvironment = function () {
+		return this._env;
+	};
+	
+	/**
+	 * Returns the name of the type of the instance.
+	 * 
+	 * @returns {String} The name of the type of the instance
+	 */
+	
+	JSONInstance.prototype.getType = function () {
+		return typeOf(this._value);
+	};
+	
+	/**
+	 * Returns the JSON value of the instance.
+	 * 
+	 * @returns {Any} The actual JavaScript value of the instance
+	 */
+	
+	JSONInstance.prototype.getValue = function () {
+		return this._value;
+	};
+	
+	/**
+	 * Returns the URI of the instance.
+	 * 
+	 * @returns {String} The URI of the instance
+	 */
+	
+	JSONInstance.prototype.getURI = function () {
+		return this._uri;
+	};
+	
+	/**
+	 * Returns a resolved URI of a provided relative URI against the URI of the instance.
+	 * 
+	 * @param {String} uri The relative URI to resolve
+	 * @returns {String} The resolved URI
+	 */
+	
+	JSONInstance.prototype.resolveURI = function (uri) {
+		return formatURI(URI.resolve(this._uri, uri));
+	};
+	
+	/**
+	 * Returns an array of the names of all the properties.
+	 * 
+	 * @returns {Array} An array of strings which are the names of all the properties
+	 */
+	
+	JSONInstance.prototype.getPropertyNames = function () {
+		return keys(this._value);
+	};
+	
+	/**
+	 * Returns a {@link JSONInstance} of the value of the provided property name. 
+	 * 
+	 * @param {String} key The name of the property to fetch
+	 * @returns {JSONInstance} The instance of the property value
+	 */
+	
+	JSONInstance.prototype.getProperty = function (key) {
+		var value = this._value ? this._value[key] : undefined;
+		if (value instanceof JSONInstance) {
+			return value;
+		}
+		//else
+		return new JSONInstance(this._env, value, this._uri + this._fd + escapeURIComponent(key), this._fd);
+	};
+	
+	/**
+	 * Returns all the property instances of the target instance.
+	 * <p>
+	 * If the target instance is an Object, then the method will return a hash table of {@link JSONInstance}s of all the properties. 
+	 * If the target instance is an Array, then the method will return an array of {@link JSONInstance}s of all the items.
+	 * </p> 
+	 * 
+	 * @returns {Object|Array|undefined} The list of instances for all the properties
+	 */
+	
+	JSONInstance.prototype.getProperties = function () {
+		var type = typeOf(this._value),
+			self = this;
+		
+		if (type === "object") {
+			return mapObject(this._value, function (value, key) {
+				if (value instanceof JSONInstance) {
+					return value;
+				}
+				return new JSONInstance(self._env, value, self._uri + self._fd + escapeURIComponent(key), self._fd);
+			});
+		} else if (type === "array") {
+			return mapArray(this._value, function (value, key) {
+				if (value instanceof JSONInstance) {
+					return value;
+				}
+				return new JSONInstance(self._env, value, self._uri + self._fd + escapeURIComponent(key), self._fd);
+			});
+		}
+	};
+	
+	/**
+	 * Returns the JSON value of the provided property name. 
+	 * This method is a faster version of calling <code>instance.getProperty(key).getValue()</code>.
+	 * 
+	 * @param {String} key The name of the property
+	 * @returns {Any} The JavaScript value of the instance
+	 * @see JSONInstance#getProperty
+	 * @see JSONInstance#getValue
+	 */
+	
+	JSONInstance.prototype.getValueOfProperty = function (key) {
+		if (this._value) {
+			if (this._value[key] instanceof JSONInstance) {
+				return this._value[key]._value;
+			}
+			return this._value[key];
+		}
+	};
+	
+	/**
+	 * Return if the provided value is the same as the value of the instance.
+	 * 
+	 * @param {JSONInstance|Any} instance The value to compare
+	 * @returns {Boolean} If both the instance and the value match
+	 */
+	
+	JSONInstance.prototype.equals = function (instance) {
+		if (instance instanceof JSONInstance) {
+			return this._value === instance._value;
+		}
+		//else
+		return this._value === instance;
+	};
+	
+	/**
+	 * Warning: Not a generic clone function
+	 * Produces a JSV acceptable clone
+	 */
+	
+	function clone(obj, deep) {
+		var newObj, x;
+		
+		if (obj instanceof JSONInstance) {
+			obj = obj.getValue();
+		}
+		
+		switch (typeOf(obj)) {
+		case "object":
+			if (deep) {
+				newObj = {};
+				for (x in obj) {
+					if (obj[x] !== O[x]) {
+						newObj[x] = clone(obj[x], deep);
+					}
+				}
+				return newObj;
+			} else {
+				return createObject(obj);
+			}
+			break;
+		case "array":
+			if (deep) {
+				newObj = new Array(obj.length);
+				x = obj.length;
+				while (--x >= 0) {
+					newObj[x] = clone(obj[x], deep);
+				}
+				return newObj;
+			} else {
+				return Array.prototype.slice.call(obj);
+			}
+			break;
+		default:
+			return obj;
+		}
+	}
+	
+	/**
+	 * This class binds a {@link JSONInstance} with a {@link JSONSchema} to provided context aware methods. 
+	 * 
+	 * @name JSONSchema
+	 * @class
+	 * @param {Environment} env The environment this schema belongs to
+	 * @param {JSONInstance|Any} json The value of the schema
+	 * @param {String} [uri] The URI of the schema. If undefined, the URI will be a randomly generated UUID. 
+	 * @param {JSONSchema|Boolean} [schema] The schema to bind to the instance. If <code>undefined</code>, the environment's default schema will be used. If <code>true</code>, the instance's schema will be itself.
+	 * @extends JSONInstance
+	 */
+	
+	function JSONSchema(env, json, uri, schema) {
+		var fr;
+		JSONInstance.call(this, env, json, uri);
+		
+		if (schema === true) {
+			this._schema = this;
+		} else if (json instanceof JSONSchema && !(schema instanceof JSONSchema)) {
+			this._schema = json._schema;  //TODO: Make sure cross environments don't mess everything up
+		} else {
+			this._schema = schema instanceof JSONSchema ? schema : this._env.getDefaultSchema() || this._env.createEmptySchema();
+		}
+		
+		//determine fragment delimiter from schema
+		fr = this._schema.getValueOfProperty("fragmentResolution");
+		if (fr === "dot-delimited") {
+			this._fd = ".";
+		} else if (fr === "slash-delimited") {
+			this._fd = "/";
+		}
+		
+		return this.rebuild();  //this works even when called with "new"
+	}
+	
+	JSONSchema.prototype = createObject(JSONInstance.prototype);
+	
+	/**
+	 * Returns the schema of the schema.
+	 * 
+	 * @returns {JSONSchema} The schema of the schema
+	 */
+	
+	JSONSchema.prototype.getSchema = function () {
+		var uri = this._refs && this._refs["describedby"],
+			newSchema;
+		
+		if (uri) {
+			newSchema = uri && this._env.findSchema(uri);
+			
+			if (newSchema) {
+				if (!newSchema.equals(this._schema)) {
+					this._schema = newSchema;
+					this.rebuild();  //if the schema has changed, the context has changed - so everything must be rebuilt
+				}
+			} else if (this._env._options["enforceReferences"]) {
+				throw new InitializationError(this, this._schema, "{describedby}", "Unknown schema reference", uri);
+			}
+		}
+		
+		return this._schema;
+	};
+	
+	/**
+	 * Returns the value of the provided attribute name.
+	 * <p>
+	 * This method is different from {@link JSONInstance#getProperty} as the named property 
+	 * is converted using a parser defined by the schema's schema before being returned. This
+	 * makes the return value of this method attribute dependent.
+	 * </p>
+	 * 
+	 * @param {String} key The name of the attribute
+	 * @param {Any} [arg] Some attribute parsers accept special arguments for returning resolved values. This is attribute dependent.
+	 * @returns {JSONSchema|Any} The value of the attribute
+	 */
+	
+	JSONSchema.prototype.getAttribute = function (key, arg) {
+		var schemaProperty, parser, property, result,
+			schema = this.getSchema();  //we do this here to make sure the "describedby" reference has not changed, and that the attribute cache is up-to-date
+		
+		if (!arg && this._attributes && this._attributes.hasOwnProperty(key)) {
+			return this._attributes[key];
+		}
+		
+		schemaProperty = schema.getProperty("properties").getProperty(key);
+		parser = schemaProperty.getValueOfProperty("parser");
+		property = this.getProperty(key);
+		if (typeof parser === "function") {
+			result = parser(property, schemaProperty, arg);
+			if (!arg && this._attributes) {
+				this._attributes[key] = result;
+			}
+			return result;
+		}
+		//else
+		return property.getValue();
+	};
+	
+	/**
+	 * Returns all the attributes of the schema.
+	 * 
+	 * @returns {Object} A map of all parsed attribute values
+	 */
+	
+	JSONSchema.prototype.getAttributes = function () {
+		var properties, schemaProperties, key, schemaProperty, parser,
+			schema = this.getSchema();  //we do this here to make sure the "describedby" reference has not changed, and that the attribute cache is up-to-date
+		
+		if (!this._attributes && this.getType() === "object") {
+			properties = this.getProperties();
+			schemaProperties = schema.getProperty("properties");
+			this._attributes = {};
+			for (key in properties) {
+				if (properties[key] !== O[key]) {
+					schemaProperty = schemaProperties && schemaProperties.getProperty(key);
+					parser = schemaProperty && schemaProperty.getValueOfProperty("parser");
+					if (typeof parser === "function") {
+						this._attributes[key] = parser(properties[key], schemaProperty);
+					} else {
+						this._attributes[key] = properties[key].getValue();
+					}
+				}
+			}
+		}
+		
+		return clone(this._attributes, false);
+	};
+	
+	/**
+	 * Convenience method for retrieving a link or link object from a schema. 
+	 * This method is the same as calling <code>schema.getAttribute("links", [rel, instance])[0];</code>.
+	 * 
+	 * @param {String} rel The link relationship
+	 * @param {JSONInstance} [instance] The instance to resolve any URIs from
+	 * @returns {String|Object|undefined} If <code>instance</code> is provided, a string containing the resolve URI of the link is returned.
+	 *   If <code>instance</code> is not provided, a link object is returned with details of the link.
+	 *   If no link with the provided relationship exists, <code>undefined</code> is returned.
+	 * @see JSONSchema#getAttribute
+	 */
+	
+	JSONSchema.prototype.getLink = function (rel, instance) {
+		var schemaLinks = this.getAttribute("links", [rel, instance]);
+		if (schemaLinks && schemaLinks.length && schemaLinks[schemaLinks.length - 1]) {
+			return schemaLinks[schemaLinks.length - 1];
+		}
+	};
+	
+	/**
+	 * Validates the provided instance against the target schema and returns a {@link Report}.
+	 * 
+	 * @param {JSONInstance|Any} instance The instance to validate; may be a {@link JSONInstance} or any JavaScript value
+	 * @param {Report} [report] A {@link Report} to concatenate the result of the validation to. If <code>undefined</code>, a new {@link Report} is created. 
+	 * @param {JSONInstance} [parent] The parent/containing instance of the provided instance
+	 * @param {JSONSchema} [parentSchema] The schema of the parent/containing instance
+	 * @param {String} [name] The name of the parent object's property that references the instance
+	 * @returns {Report} The result of the validation
+	 */
+	
+	JSONSchema.prototype.validate = function (instance, report, parent, parentSchema, name) {
+		var schemaSchema = this.getSchema(),
+			validator = schemaSchema.getValueOfProperty("validator");
+		
+		if (!(instance instanceof JSONInstance)) {
+			instance = this.getEnvironment().createInstance(instance);
+		}
+		
+		if (!(report instanceof Report)) {
+			report = new Report();
+		}
+		
+		if (this._env._options["validateReferences"] && this._refs) {
+			if (this._refs["describedby"] && !this._env.findSchema(this._refs["describedby"])) {
+				report.addError(this, this._schema, "{describedby}", "Unknown schema reference", this._refs["describedby"]);
+			}
+			if (this._refs["full"] && !this._env.findSchema(this._refs["full"])) {
+				report.addError(this, this._schema, "{full}", "Unknown schema reference", this._refs["full"]);
+			}
+		}
+		
+		if (typeof validator === "function" && !report.isValidatedBy(instance.getURI(), this.getURI())) {
+			report.registerValidation(instance.getURI(), this.getURI());
+			validator(instance, this, schemaSchema, report, parent, parentSchema, name);
+		}
+		
+		return report;
+	};
+	
+	/** @inner */
+	function createFullLookupWrapper(func) {
+		return /** @inner */ function fullLookupWrapper() {
+			var scope = this,
+				stack = [],
+				uri = scope._refs && scope._refs["full"],
+				schema;
+			
+			while (uri) {
+				schema = scope._env.findSchema(uri);
+				if (schema) {
+					if (schema._value === scope._value) {
+						break;
+					}
+					scope = schema;
+					stack.push(uri);
+					uri = scope._refs && scope._refs["full"];
+					if (stack.indexOf(uri) > -1) {
+						break;  //stop infinite loop
+					}
+				} else if (scope._env._options["enforceReferences"]) {
+					throw new InitializationError(scope, scope._schema, "{full}", "Unknown schema reference", uri);
+				} else {
+					uri = null;
+				}
+			}
+			return func.apply(scope, arguments);
+		};
+	}
+	
+	/**
+	 * Wraps all JSONInstance methods with a function that resolves the "full" reference.
+	 * 
+	 * @inner
+	 */
+	
+	(function () {
+		var key;
+		for (key in JSONSchema.prototype) {
+			if (JSONSchema.prototype[key] !== O[key] && typeOf(JSONSchema.prototype[key]) === "function") {
+				JSONSchema.prototype[key] = createFullLookupWrapper(JSONSchema.prototype[key]);
+			}
+		}
+	}());
+	
+	/**
+	 * Reinitializes/re-registers/rebuilds the schema.
+	 * <br/>
+	 * This is used internally, and should only be called when a schema's private variables are modified directly.
+	 * 
+	 * @private
+	 * @return {JSONSchema} The newly rebuilt schema
+	 */
+	
+	JSONSchema.prototype.rebuild = function () {
+		var instance = this,
+			initializer = instance.getSchema().getValueOfProperty("initializer");
+		
+		//clear previous built values
+		instance._refs = null;
+		instance._attributes = null;
+		
+		if (typeof initializer === "function") {
+			instance = initializer(instance);
+		}
+		
+		//register schema
+		instance._env._schemas[instance._uri] = instance;
+		
+		//build & cache the rest of the schema
+		instance.getAttributes();
+		
+		return instance;
+	};
+	
+	/**
+	 * Set the provided reference to the given value.
+	 * <br/>
+	 * References are used for establishing soft-links to other {@link JSONSchema}s.
+	 * Currently, the following references are natively supported:
+	 * <dl>
+	 *   <dt><code>full</code></dt>
+	 *   <dd>The value is the URI to the full instance of this instance.</dd>
+	 *   <dt><code>describedby</code></dt>
+	 *   <dd>The value is the URI to the schema of this instance.</dd>
+	 * </dl>
+	 * 
+	 * @param {String} name The name of the reference
+	 * @param {String} uri The URI of the schema to refer to
+	 */
+	
+	JSONSchema.prototype.setReference = function (name, uri) {
+		if (!this._refs) {
+			this._refs = {};
+		}
+		this._refs[name] = this.resolveURI(uri);
+	};
+	
+	/**
+	 * Returns the value of the provided reference name.
+	 * 
+	 * @param {String} name The name of the reference
+	 * @return {String} The value of the provided reference name
+	 */
+	
+	JSONSchema.prototype.getReference = function (name) {
+		return this._refs && this._refs[name];
+	};
+	
+	/**
+	 * Merges two schemas/instances together.
+	 */
+	
+	function inherits(base, extra, extension) {
+		var baseType = typeOf(base),
+			extraType = typeOf(extra),
+			child, x;
+		
+		if (extraType === "undefined") {
+			return clone(base, true);
+		} else if (baseType === "undefined" || extraType !== baseType) {
+			return clone(extra, true);
+		} else if (extraType === "object") {
+			if (base instanceof JSONSchema) {
+				base = base.getAttributes();
+			}
+			if (extra instanceof JSONSchema) {
+				extra = extra.getAttributes();
+				if (extra["extends"] && extension && extra["extends"] instanceof JSONSchema) {
+					extra["extends"] = [ extra["extends"] ];
+				}
+			}
+			child = clone(base, true);  //this could be optimized as some properties get overwritten
+			for (x in extra) {
+				if (extra[x] !== O[x]) {
+					child[x] = inherits(base[x], extra[x], extension);
+				}
+			}
+			return child;
+		} else {
+			return clone(extra, true);
+		}
+	}
+	
+	/**
+	 * An Environment is a sandbox of schemas thats behavior is different from other environments.
+	 * 
+	 * @name Environment
+	 * @class
+	 */
+	
+	function Environment() {
+		this._id = randomUUID();
+		this._schemas = {};
+		this._options = {};
+		
+		this.createSchema({}, true, "urn:jsv:empty-schema#");
+	}
+	
+	/**
+	 * Returns a clone of the target environment.
+	 * 
+	 * @returns {Environment} A new {@link Environment} that is a exact copy of the target environment 
+	 */
+	
+	Environment.prototype.clone = function () {
+		var env = new Environment();
+		env._schemas = createObject(this._schemas);
+		env._options = createObject(this._options);
+		
+		return env;
+	};
+	
+	/**
+	 * Returns a new {@link JSONInstance} of the provided data.
+	 * 
+	 * @param {JSONInstance|Any} data The value of the instance
+	 * @param {String} [uri] The URI of the instance. If undefined, the URI will be a randomly generated UUID. 
+	 * @returns {JSONInstance} A new {@link JSONInstance} from the provided data
+	 */
+	
+	Environment.prototype.createInstance = function (data, uri) {
+		uri = formatURI(uri);
+		
+		if (data instanceof JSONInstance && (!uri || data.getURI() === uri)) {
+			return data;
+		}
+
+		return new JSONInstance(this, data, uri);
+	};
+	
+	/**
+	 * Creates a new {@link JSONSchema} from the provided data, and registers it with the environment. 
+	 * 
+	 * @param {JSONInstance|Any} data The value of the schema
+	 * @param {JSONSchema|Boolean} [schema] The schema to bind to the instance. If <code>undefined</code>, the environment's default schema will be used. If <code>true</code>, the instance's schema will be itself.
+	 * @param {String} [uri] The URI of the schema. If undefined, the URI will be a randomly generated UUID. 
+	 * @returns {JSONSchema} A new {@link JSONSchema} from the provided data
+	 * @throws {InitializationError} If a schema that is not registered with the environment is referenced 
+	 */
+	
+	Environment.prototype.createSchema = function (data, schema, uri) {
+		uri = formatURI(uri);
+		
+		if (data instanceof JSONSchema && (!uri || data._uri === uri) && (!schema || data.getSchema().equals(schema))) {
+			return data;
+		}
+		
+		return new JSONSchema(this, data, uri, schema);
+	};
+	
+	/**
+	 * Creates an empty schema.
+	 * 
+	 * @returns {JSONSchema} The empty schema, who's schema is itself.
+	 */
+	
+	Environment.prototype.createEmptySchema = function () {
+		return this._schemas["urn:jsv:empty-schema#"];
+	};
+	
+	/**
+	 * Returns the schema registered with the provided URI.
+	 * 
+	 * @param {String} uri The absolute URI of the required schema
+	 * @returns {JSONSchema|undefined} The request schema, or <code>undefined</code> if not found
+	 */
+	
+	Environment.prototype.findSchema = function (uri) {
+		return this._schemas[formatURI(uri)];
+	};
+	
+	/**
+	 * Sets the specified environment option to the specified value.
+	 * 
+	 * @param {String} name The name of the environment option to set
+	 * @param {Any} value The new value of the environment option
+	 */
+	
+	Environment.prototype.setOption = function (name, value) {
+		this._options[name] = value;
+	};
+	
+	/**
+	 * Returns the specified environment option.
+	 * 
+	 * @param {String} name The name of the environment option to set
+	 * @returns {Any} The value of the environment option
+	 */
+	
+	Environment.prototype.getOption = function (name) {
+		return this._options[name];
+	};
+	
+	/**
+	 * Sets the default fragment delimiter of the environment.
+	 * 
+	 * @deprecated Use {@link Environment#setOption} with option "defaultFragmentDelimiter"
+	 * @param {String} fd The fragment delimiter character
+	 */
+	
+	Environment.prototype.setDefaultFragmentDelimiter = function (fd) {
+		if (typeof fd === "string" && fd.length > 0) {
+			this._options["defaultFragmentDelimiter"] = fd;
+		}
+	};
+	
+	/**
+	 * Returns the default fragment delimiter of the environment.
+	 * 
+	 * @deprecated Use {@link Environment#getOption} with option "defaultFragmentDelimiter"
+	 * @returns {String} The fragment delimiter character
+	 */
+	
+	Environment.prototype.getDefaultFragmentDelimiter = function () {
+		return this._options["defaultFragmentDelimiter"];
+	};
+	
+	/**
+	 * Sets the URI of the default schema for the environment.
+	 * 
+	 * @deprecated Use {@link Environment#setOption} with option "defaultSchemaURI"
+	 * @param {String} uri The default schema URI
+	 */
+	
+	Environment.prototype.setDefaultSchemaURI = function (uri) {
+		if (typeof uri === "string") {
+			this._options["defaultSchemaURI"] = formatURI(uri);
+		}
+	};
+	
+	/**
+	 * Returns the default schema of the environment.
+	 * 
+	 * @returns {JSONSchema} The default schema
+	 */
+	
+	Environment.prototype.getDefaultSchema = function () {
+		return this.findSchema(this._options["defaultSchemaURI"]);
+	};
+	
+	/**
+	 * Validates both the provided schema and the provided instance, and returns a {@link Report}. 
+	 * If the schema fails to validate, the instance will not be validated.
+	 * 
+	 * @param {JSONInstance|Any} instanceJSON The {@link JSONInstance} or JavaScript value to validate.
+	 * @param {JSONSchema|Any} schemaJSON The {@link JSONSchema} or JavaScript value to use in the validation. This will also be validated againt the schema's schema.
+	 * @returns {Report} The result of the validation
+	 */
+	
+	Environment.prototype.validate = function (instanceJSON, schemaJSON) {
+		var instance,
+			schema,
+			schemaSchema,
+			report = new Report();
+		
+		try {
+			instance = this.createInstance(instanceJSON);
+			report.instance = instance;
+		} catch (e) {
+			report.addError(e.uri, e.schemaUri, e.attribute, e.message, e.details);
+		}
+		
+		try {
+			schema = this.createSchema(schemaJSON);
+			report.schema = schema;
+			
+			schemaSchema = schema.getSchema();
+			report.schemaSchema = schemaSchema;
+		} catch (f) {
+			report.addError(f.uri, f.schemaUri, f.attribute, f.message, f.details);
+		}
+		
+		if (schemaSchema) {
+			schemaSchema.validate(schema, report);
+		}
+			
+		if (report.errors.length) {
+			return report;
+		}
+		
+		return schema.validate(instance, report);
+	};
+	
+	/**
+	 * @private
+	 */
+	
+	Environment.prototype._checkForInvalidInstances = function (stackSize, schemaURI) {
+		var result = [],
+			stack = [
+				[schemaURI, this._schemas[schemaURI]]
+			], 
+			counter = 0,
+			item, uri, instance, properties, key;
+		
+		while (counter++ < stackSize && stack.length) {
+			item = stack.shift();
+			uri = item[0];
+			instance = item[1];
+			
+			if (instance instanceof JSONSchema) {
+				if (this._schemas[instance._uri] !== instance) {
+					result.push("Instance " + uri + " does not match " + instance._uri);
+				} else {
+					//schema = instance.getSchema();
+					//stack.push([uri + "/{schema}", schema]);
+					
+					properties = instance.getAttributes();
+					for (key in properties) {
+						if (properties[key] !== O[key]) {
+							stack.push([uri + "/" + escapeURIComponent(key), properties[key]]);
+						}
+					}
+				}
+			} else if (typeOf(instance) === "object") {
+				properties = instance;
+				for (key in properties) {
+					if (properties.hasOwnProperty(key)) {
+						stack.push([uri + "/" + escapeURIComponent(key), properties[key]]);
+					}
+				}
+			} else if (typeOf(instance) === "array") {
+				properties = instance;
+				for (key = 0; key < properties.length; ++key) {
+					stack.push([uri + "/" + escapeURIComponent(key), properties[key]]);
+				}
+			}
+		}
+		
+		return result.length ? result : counter;
+	};
+	
+	/**
+	 * A globaly accessible object that provides the ability to create and manage {@link Environments},
+	 * as well as providing utility methods.
+	 * 
+	 * @namespace
+	 */
+	
+	JSV = {
+		_environments : {},
+		_defaultEnvironmentID : "",
+		
+		/**
+		 * Returns if the provide value is an instance of {@link JSONInstance}.
+		 * 
+		 * @param o The value to test
+		 * @returns {Boolean} If the provide value is an instance of {@link JSONInstance}
+		 */
+		
+		isJSONInstance : function (o) {
+			return o instanceof JSONInstance;
+		},
+		
+		/**
+		 * Returns if the provide value is an instance of {@link JSONSchema}.
+		 * 
+		 * @param o The value to test
+		 * @returns {Boolean} If the provide value is an instance of {@link JSONSchema}
+		 */
+		
+		isJSONSchema : function (o) {
+			return o instanceof JSONSchema;
+		},
+		
+		/**
+		 * Creates and returns a new {@link Environment} that is a clone of the environment registered with the provided ID.
+		 * If no environment ID is provided, the default environment is cloned.
+		 * 
+		 * @param {String} [id] The ID of the environment to clone. If <code>undefined</code>, the default environment ID is used.
+		 * @returns {Environment} A newly cloned {@link Environment}
+		 * @throws {Error} If there is no environment registered with the provided ID
+		 */
+		
+		createEnvironment : function (id) {
+			id = id || this._defaultEnvironmentID;
+			
+			if (!this._environments[id]) {
+				throw new Error("Unknown Environment ID");
+			}
+			//else
+			return this._environments[id].clone();
+		},
+		
+		Environment : Environment,
+		
+		/**
+		 * Registers the provided {@link Environment} with the provided ID.
+		 * 
+		 * @param {String} id The ID of the environment
+		 * @param {Environment} env The environment to register
+		 */
+		
+		registerEnvironment : function (id, env) {
+			id = id || (env || 0)._id;
+			if (id && !this._environments[id] && env instanceof Environment) {
+				env._id = id;
+				this._environments[id] = env;
+			}
+		},
+		
+		/**
+		 * Sets which registered ID is the default environment.
+		 * 
+		 * @param {String} id The ID of the registered environment that is default
+		 * @throws {Error} If there is no registered environment with the provided ID
+		 */
+		
+		setDefaultEnvironmentID : function (id) {
+			if (typeof id === "string") {
+				if (!this._environments[id]) {
+					throw new Error("Unknown Environment ID");
+				}
+				
+				this._defaultEnvironmentID = id;
+			}
+		},
+		
+		/**
+		 * Returns the ID of the default environment.
+		 * 
+		 * @returns {String} The ID of the default environment
+		 */
+		
+		getDefaultEnvironmentID : function () {
+			return this._defaultEnvironmentID;
+		},
+		
+		//
+		// Utility Functions
+		//
+		
+		/**
+		 * Returns the name of the type of the provided value.
+		 *
+		 * @event //utility
+		 * @param {Any} o The value to determine the type of
+		 * @returns {String} The name of the type of the value
+		 */
+		typeOf : typeOf,
+		
+		/**
+		 * Return a new object that inherits all of the properties of the provided object.
+		 *
+		 * @event //utility
+		 * @param {Object} proto The prototype of the new object
+		 * @returns {Object} A new object that inherits all of the properties of the provided object
+		 */
+		createObject : createObject,
+		
+		/**
+		 * Returns a new object with each property transformed by the iterator.
+		 *
+		 * @event //utility
+		 * @param {Object} obj The object to transform
+		 * @param {Function} iterator A function that returns the new value of the provided property
+		 * @param {Object} [scope] The value of <code>this</code> in the iterator
+		 * @returns {Object} A new object with each property transformed
+		 */
+		mapObject : mapObject,
+		
+		/**
+		 * Returns a new array with each item transformed by the iterator.
+		 * 
+		 * @event //utility
+		 * @param {Array} arr The array to transform
+		 * @param {Function} iterator A function that returns the new value of the provided item
+		 * @param {Object} scope The value of <code>this</code> in the iterator
+		 * @returns {Array} A new array with each item transformed
+		 */
+		mapArray : mapArray,
+		
+		/**
+		 * Returns a new array that only contains the items allowed by the iterator.
+		 *
+		 * @event //utility
+		 * @param {Array} arr The array to filter
+		 * @param {Function} iterator The function that returns true if the provided property should be added to the array
+		 * @param {Object} scope The value of <code>this</code> within the iterator
+		 * @returns {Array} A new array that contains the items allowed by the iterator
+		 */
+		filterArray : filterArray,
+		
+		/**
+		 * Returns the first index in the array that the provided item is located at.
+		 *
+		 * @event //utility
+		 * @param {Array} arr The array to search
+		 * @param {Any} o The item being searched for
+		 * @returns {Number} The index of the item in the array, or <code>-1</code> if not found
+		 */
+		searchArray : searchArray,
+			
+		/**
+		 * Returns an array representation of a value.
+		 * <ul>
+		 * <li>For array-like objects, the value will be casted as an Array type.</li>
+		 * <li>If an array is provided, the function will simply return the same array.</li>
+		 * <li>For a null or undefined value, the result will be an empty Array.</li>
+		 * <li>For all other values, the value will be the first element in a new Array. </li>
+		 * </ul>
+		 *
+		 * @event //utility
+		 * @param {Any} o The value to convert into an array
+		 * @returns {Array} The value as an array
+		 */
+		toArray : toArray,
+		
+		/**
+		 * Returns an array of the names of all properties of an object.
+		 * 
+		 * @event //utility
+		 * @param {Object|Array} o The object in question
+		 * @returns {Array} The names of all properties
+		 */
+		keys : keys,
+		
+		/**
+		 * Mutates the array by pushing the provided value onto the array only if it is not already there.
+		 *
+		 * @event //utility
+		 * @param {Array} arr The array to modify
+		 * @param {Any} o The object to add to the array if it is not already there
+		 * @returns {Array} The provided array for chaining
+		 */
+		pushUnique : pushUnique,
+		
+		/**
+		 * Mutates the array by removing the first item that matches the provided value in the array.
+		 *
+		 * @event //utility
+		 * @param {Array} arr The array to modify
+		 * @param {Any} o The object to remove from the array
+		 * @returns {Array} The provided array for chaining
+		 */
+		popFirst : popFirst,
+		
+		/**
+		 * Creates a copy of the target object.
+		 * <p>
+		 * This method will create a new instance of the target, and then mixin the properties of the target.
+		 * If <code>deep</code> is <code>true</code>, then each property will be cloned before mixin.
+		 * </p>
+		 * <p><b>Warning</b>: This is not a generic clone function, as it will only properly clone objects and arrays.</p>
+		 * 
+		 * @event //utility
+		 * @param {Any} o The value to clone 
+		 * @param {Boolean} [deep=false] If each property should be recursively cloned
+		 * @returns A cloned copy of the provided value
+		 */
+		clone : clone,
+		
+		/**
+		 * Generates a pseudo-random UUID.
+		 * 
+		 * @event //utility
+		 * @returns {String} A new universally unique ID
+		 */
+		randomUUID : randomUUID,
+		
+		/**
+		 * Properly escapes a URI component for embedding into a URI string.
+		 * 
+		 * @event //utility
+		 * @param {String} str The URI component to escape
+		 * @returns {String} The escaped URI component
+		 */
+		escapeURIComponent : escapeURIComponent,
+		
+		/**
+		 * Returns a URI that is formated for JSV. Currently, this only ensures that the URI ends with a hash tag (<code>#</code>).
+		 * 
+		 * @event //utility
+		 * @param {String} uri The URI to format
+		 * @returns {String} The URI formatted for JSV
+		 */
+		formatURI : formatURI,
+		
+		/**
+		 * Merges two schemas/instance together.
+		 * 
+		 * @event //utility
+		 * @param {JSONSchema|Any} base The old value to merge
+		 * @param {JSONSchema|Any} extra The new value to merge
+		 * @param {Boolean} extension If the merge is a JSON Schema extension
+		 * @return {Any} The modified base value
+		 */
+		 
+		inherits : inherits,
+		
+		/**
+		 * @private
+		 * @event //utility
+		 */
+		
+		InitializationError : InitializationError
+	};
+	
+	this.JSV = JSV;  //set global object
+	exports.JSV = JSV;  //export to CommonJS
+	
+	require("./environments");  //load default environments
+	
+}());}, "uri/schemes/urn": function(exports, require, module) {(function () {
+	var URI_NS = require("../uri"),
+		URI = URI_NS.URI,
+		pctEncChar = URI_NS.pctEncChar,
+		NID$ = "(?:[0-9A-Za-z][0-9A-Za-z\\-]{1,31})",
+		PCT_ENCODED$ = "(?:\\%[0-9A-Fa-f]{2})",
+		TRANS$$ = "[0-9A-Za-z\\(\\)\\+\\,\\-\\.\\:\\=\\@\\;\\$\\_\\!\\*\\'\\/\\?\\#]",
+		NSS$ = "(?:(?:" + PCT_ENCODED$ + "|" + TRANS$$ + ")+)",
+		URN_SCHEME = new RegExp("^urn\\:(" + NID$ + ")$"),
+		URN_PATH = new RegExp("^(" + NID$ + ")\\:(" + NSS$ + ")$"),
+		URN_PARSE = /^([^\:]+)\:(.*)/,
+		URN_EXCLUDED = /[\x00-\x20\\\"\&\<\>\[\]\^\`\{\|\}\~\x7F-\xFF]/g,
+		UUID = /^[0-9A-Fa-f]{8}(?:\-[0-9A-Fa-f]{4}){3}\-[0-9A-Fa-f]{12}$/;
+	
+	//RFC 2141
+	URI.SCHEMES["urn"] = {
+		parse : function (components, options) {
+			var matches = components.path.match(URN_PATH),
+				scheme, schemeHandler;
+			
+			if (!matches) {
+				if (!options.tolerant) {
+					components.errors.push("URN is not strictly valid.");
+				}
+				
+				matches = components.path.match(URN_PARSE);
+			}
+			
+			if (matches) {
+				scheme = "urn:" + matches[1].toLowerCase();
+				schemeHandler = URI.SCHEMES[scheme];
+				
+				//in order to serialize properly, 
+				//every URN must have a serializer that calls the URN serializer 
+				if (!schemeHandler) {
+					schemeHandler = URI.SCHEMES[scheme] = {};
+				}
+				if (!schemeHandler.serialize) {
+					schemeHandler.serialize = URI.SCHEMES["urn"].serialize;
+				}
+				
+				components.scheme = scheme;
+				components.path = matches[2];
+				
+				if (schemeHandler.parse) {
+					schemeHandler.parse(components, options);
+				}
+			} else {
+				components.errors.push("URN can not be parsed.");
+			}
+	
+			return components;
+		},
+		
+		serialize : function (components, options) {
+			var scheme = components.scheme || options.scheme,
+				matches;
+			
+			if (scheme && scheme !== "urn") {
+				var matches = scheme.match(URN_SCHEME);
+				
+				if (!matches) {
+					matches = ["urn:" + scheme, scheme];
+				}
+				
+				components.scheme = "urn";
+				components.path = matches[1] + ":" + (components.path ? components.path.replace(URN_EXCLUDED, pctEncChar) : "");
+			}
+			
+			return components;
+		}
+	};
+	
+	//RFC 4122
+	URI.SCHEMES["urn:uuid"] = {
+		serialize : function (components, options) {
+			//ensure UUID is valid
+			if (!options.tolerant && (!components.path || !components.path.match(UUID))) {
+				//invalid UUIDs can not have this scheme
+				components.scheme = undefined;
+			}
+			
+			return URI.SCHEMES["urn"].serialize(components, options);
+		}
+	};
+}());}, "uri/uri": function(exports, require, module) {/**
+ * URI.js
+ * 
+ * @fileoverview An RFC 3986 compliant, scheme extendable URI parsing/validating/resolving library for JavaScript.
+ * @author <a href="mailto:gary.court@gmail.com">Gary Court</a>
+ * @version 1.3
+ * @see http://github.com/garycourt/uri-js
+ * @license URI.js v1.3 (c) 2010 Gary Court. License: http://github.com/garycourt/uri-js
+ */
+
+/**
+ * Copyright 2010 Gary Court. All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without modification, are
+ * permitted provided that the following conditions are met:
+ * 
+ *    1. Redistributions of source code must retain the above copyright notice, this list of
+ *       conditions and the following disclaimer.
+ * 
+ *    2. Redistributions in binary form must reproduce the above copyright notice, this list
+ *       of conditions and the following disclaimer in the documentation and/or other materials
+ *       provided with the distribution.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY GARY COURT ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL GARY COURT OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * 
+ * The views and conclusions contained in the software and documentation are those of the
+ * authors and should not be interpreted as representing official policies, either expressed
+ * or implied, of Gary Court.
+ */
+
+/*jslint white: true, sub: true, onevar: true, undef: true, eqeqeq: true, newcap: true, immed: true, indent: 4 */
+/*global exports:true, require:true */
+
+if (typeof exports === "undefined") {
+	exports = {}; 
+}
+if (typeof require !== "function") {
+	require = function (id) {
+		return exports;
+	};
+}
+(function () {
+	var	
+		/**
+		 * @param {...string} sets
+		 * @return {string}
+		 */
+		mergeSet = function (sets) {
+			var set = arguments[0],
+				x = 1,
+				nextSet = arguments[x];
+			
+			while (nextSet) {
+				set = set.slice(0, -1) + nextSet.slice(1);
+				nextSet = arguments[++x];
+			}
+			
+			return set;
+		},
+		
+		/**
+		 * @param {string} str
+		 * @return {string}
+		 */
+		subexp = function (str) {
+			return "(?:" + str + ")";
+		},
+	
+		ALPHA$$ = "[A-Za-z]",
+		CR$ = "[\\x0D]",
+		DIGIT$$ = "[0-9]",
+		DQUOTE$$ = "[\\x22]",
+		HEXDIG$$ = mergeSet(DIGIT$$, "[A-Fa-f]"),  //case-insensitive
+		LF$$ = "[\\x0A]",
+		SP$$ = "[\\x20]",
+		PCT_ENCODED$ = subexp("%" + HEXDIG$$ + HEXDIG$$),
+		GEN_DELIMS$$ = "[\\:\\/\\?\\#\\[\\]\\@]",
+		SUB_DELIMS$$ = "[\\!\\$\\&\\'\\(\\)\\*\\+\\,\\;\\=]",
+		RESERVED$$ = mergeSet(GEN_DELIMS$$, SUB_DELIMS$$),
+		UNRESERVED$$ = mergeSet(ALPHA$$, DIGIT$$, "[\\-\\.\\_\\~]"),
+		SCHEME$ = subexp(ALPHA$$ + mergeSet(ALPHA$$, DIGIT$$, "[\\+\\-\\.]") + "*"),
+		USERINFO$ = subexp(subexp(PCT_ENCODED$ + "|" + mergeSet(UNRESERVED$$, SUB_DELIMS$$, "[\\:]")) + "*"),
+		DEC_OCTET$ = subexp(subexp("25[0-5]") + "|" + subexp("2[0-4]" + DIGIT$$) + "|" + subexp("1" + DIGIT$$ + DIGIT$$) + "|" + subexp("[1-9]" + DIGIT$$) + "|" + DIGIT$$),
+		IPV4ADDRESS$ = subexp(DEC_OCTET$ + "\\." + DEC_OCTET$ + "\\." + DEC_OCTET$ + "\\." + DEC_OCTET$),
+		H16$ = subexp(HEXDIG$$ + "{1,4}"),
+		LS32$ = subexp(subexp(H16$ + "\\:" + H16$) + "|" + IPV4ADDRESS$),
+		IPV6ADDRESS$ = subexp(mergeSet(UNRESERVED$$, SUB_DELIMS$$, "[\\:]") + "+"),  //FIXME
+		IPVFUTURE$ = subexp("v" + HEXDIG$$ + "+\\." + mergeSet(UNRESERVED$$, SUB_DELIMS$$, "[\\:]") + "+"),
+		IP_LITERAL$ = subexp("\\[" + subexp(IPV6ADDRESS$ + "|" + IPVFUTURE$) + "\\]"),
+		REG_NAME$ = subexp(subexp(PCT_ENCODED$ + "|" + mergeSet(UNRESERVED$$, SUB_DELIMS$$)) + "*"),
+		HOST$ = subexp(IP_LITERAL$ + "|" + IPV4ADDRESS$ + "|" + REG_NAME$),
+		PORT$ = subexp(DIGIT$$ + "*"),
+		AUTHORITY$ = subexp(subexp(USERINFO$ + "@") + "?" + HOST$ + subexp("\\:" + PORT$) + "?"),
+		PCHAR$ = subexp(PCT_ENCODED$ + "|" + mergeSet(UNRESERVED$$, SUB_DELIMS$$, "[\\:\\@]")),
+		SEGMENT$ = subexp(PCHAR$ + "*"),
+		SEGMENT_NZ$ = subexp(PCHAR$ + "+"),
+		SEGMENT_NZ_NC$ = subexp(subexp(PCT_ENCODED$ + "|" + mergeSet(UNRESERVED$$, SUB_DELIMS$$, "[\\@]")) + "+"),
+		PATH_ABEMPTY$ = subexp(subexp("\\/" + SEGMENT$) + "*"),
+		PATH_ABSOLUTE$ = subexp("\\/" + subexp(SEGMENT_NZ$ + PATH_ABEMPTY$) + "?"),  //simplified
+		PATH_NOSCHEME$ = subexp(SEGMENT_NZ_NC$ + PATH_ABEMPTY$),  //simplified
+		PATH_ROOTLESS$ = subexp(SEGMENT_NZ$ + PATH_ABEMPTY$),  //simplified
+		PATH_EMPTY$ = subexp(""),  //simplified
+		PATH$ = subexp(PATH_ABEMPTY$ + "|" + PATH_ABSOLUTE$ + "|" + PATH_NOSCHEME$ + "|" + PATH_ROOTLESS$ + "|" + PATH_EMPTY$),
+		QUERY$ = subexp(subexp(PCHAR$ + "|[\\/\\?]") + "*"),
+		FRAGMENT$ = subexp(subexp(PCHAR$ + "|[\\/\\?]") + "*"),
+		HIER_PART$ = subexp(subexp("\\/\\/" + AUTHORITY$ + PATH_ABEMPTY$) + "|" + PATH_ABSOLUTE$ + "|" + PATH_ROOTLESS$ + "|" + PATH_EMPTY$),
+		URI$ = subexp(SCHEME$ + "\\:" + HIER_PART$ + subexp("\\?" + QUERY$) + "?" + subexp("\\#" + FRAGMENT$) + "?"),
+		RELATIVE_PART$ = subexp(subexp("\\/\\/" + AUTHORITY$ + PATH_ABEMPTY$) + "|" + PATH_ABSOLUTE$ + "|" + PATH_NOSCHEME$ + "|" + PATH_EMPTY$),
+		RELATIVE_REF$ = subexp(RELATIVE_PART$ + subexp("\\?" + QUERY$) + "?" + subexp("\\#" + FRAGMENT$) + "?"),
+		URI_REFERENCE$ = subexp(URI$ + "|" + RELATIVE_REF$),
+		ABSOLUTE_URI$ = subexp(SCHEME$ + "\\:" + HIER_PART$ + subexp("\\?" + QUERY$) + "?"),
+		
+		URI_REF = new RegExp("^" + subexp("(" + URI$ + ")|(" + RELATIVE_REF$ + ")") + "$"),
+		GENERIC_REF  = new RegExp("^(" + SCHEME$ + ")\\:" + subexp(subexp("\\/\\/(" + subexp("(" + USERINFO$ + ")@") + "?(" + HOST$ + ")" + subexp("\\:(" + PORT$ + ")") + "?)") + "?(" + PATH_ABEMPTY$ + "|" + PATH_ABSOLUTE$ + "|" + PATH_ROOTLESS$ + "|" + PATH_EMPTY$ + ")") + subexp("\\?(" + QUERY$ + ")") + "?" + subexp("\\#(" + FRAGMENT$ + ")") + "?$"),
+		RELATIVE_REF = new RegExp("^(){0}" + subexp(subexp("\\/\\/(" + subexp("(" + USERINFO$ + ")@") + "?(" + HOST$ + ")" + subexp("\\:(" + PORT$ + ")") + "?)") + "?(" + PATH_ABEMPTY$ + "|" + PATH_ABSOLUTE$ + "|" + PATH_NOSCHEME$ + "|" + PATH_EMPTY$ + ")") + subexp("\\?(" + QUERY$ + ")") + "?" + subexp("\\#(" + FRAGMENT$ + ")") + "?$"),
+		ABSOLUTE_REF = new RegExp("^(" + SCHEME$ + ")\\:" + subexp(subexp("\\/\\/(" + subexp("(" + USERINFO$ + ")@") + "?(" + HOST$ + ")" + subexp("\\:(" + PORT$ + ")") + "?)") + "?(" + PATH_ABEMPTY$ + "|" + PATH_ABSOLUTE$ + "|" + PATH_ROOTLESS$ + "|" + PATH_EMPTY$ + ")") + subexp("\\?(" + QUERY$ + ")") + "?$"),
+		SAMEDOC_REF = new RegExp("^" + subexp("\\#(" + FRAGMENT$ + ")") + "?$"),
+		AUTHORITY = new RegExp("^" + subexp("(" + USERINFO$ + ")@") + "?(" + HOST$ + ")" + subexp("\\:(" + PORT$ + ")") + "?$"),
+		
+		NOT_SCHEME = new RegExp(mergeSet("[^]", ALPHA$$, DIGIT$$, "[\\+\\-\\.]"), "g"),
+		NOT_USERINFO = new RegExp(mergeSet("[^\\%\\:]", UNRESERVED$$, SUB_DELIMS$$), "g"),
+		NOT_HOST = new RegExp(mergeSet("[^\\%]", UNRESERVED$$, SUB_DELIMS$$), "g"),
+		NOT_PATH = new RegExp(mergeSet("[^\\%\\/\\:\\@]", UNRESERVED$$, SUB_DELIMS$$), "g"),
+		NOT_PATH_NOSCHEME = new RegExp(mergeSet("[^\\%\\/\\@]", UNRESERVED$$, SUB_DELIMS$$), "g"),
+		NOT_QUERY = new RegExp(mergeSet("[^\\%]", UNRESERVED$$, SUB_DELIMS$$, "[\\:\\@\\/\\?]"), "g"),
+		NOT_FRAGMENT = NOT_QUERY,
+		ESCAPE = new RegExp(mergeSet("[^]", UNRESERVED$$, SUB_DELIMS$$), "g"),
+		UNRESERVED = new RegExp(UNRESERVED$$, "g"),
+		OTHER_CHARS = new RegExp(mergeSet("[^\\%]", UNRESERVED$$, RESERVED$$), "g"),
+		PCT_ENCODEDS = new RegExp(PCT_ENCODED$ + "+", "g"),
+		URI_PARSE = /^(?:([^:\/?#]+):)?(?:\/\/((?:([^\/?#@]*)@)?([^\/?#:]*)(?:\:(\d*))?))?([^?#]*)(?:\?([^#]*))?(?:#(.*))?/i,
+		RDS1 = /^\.\.?\//,
+		RDS2 = /^\/\.(\/|$)/,
+		RDS3 = /^\/\.\.(\/|$)/,
+		RDS4 = /^\.\.?$/,
+		RDS5 = /^\/?.*?(?=\/|$)/,
+		NO_MATCH_IS_UNDEFINED = ("").match(/(){0}/)[1] === undefined,
+		
+		/**
+		 * @param {string} chr
+		 * @return {string}
+		 */
+		pctEncChar = function (chr) {
+			var c = chr.charCodeAt(0);
+ 
+			if (c < 128) {
+				return "%" + c.toString(16).toUpperCase();
+			}
+			else if ((c > 127) && (c < 2048)) {
+				return "%" + ((c >> 6) | 192).toString(16).toUpperCase() + "%" + ((c & 63) | 128).toString(16).toUpperCase();
+			}
+			else {
+				return "%" + ((c >> 12) | 224).toString(16).toUpperCase() + "%" + (((c >> 6) & 63) | 128).toString(16).toUpperCase() + "%" + ((c & 63) | 128).toString(16).toUpperCase();
+			}
+		},
+		
+		/**
+		 * @param {string} str
+		 * @return {string}
+		 */
+		pctDecUnreserved = function (str) {
+			var newStr = "", 
+				i = 0,
+				c, s;
+	 
+			while (i < str.length) {
+				c = parseInt(str.substr(i + 1, 2), 16);
+	 
+				if (c < 128) {
+					s = String.fromCharCode(c);
+					if (s.match(UNRESERVED)) {
+						newStr += s;
+					} else {
+						newStr += str.substr(i, 3);
+					}
+					i += 3;
+				}
+				else if ((c > 191) && (c < 224)) {
+					newStr += str.substr(i, 6);
+					i += 6;
+				}
+				else {
+					newStr += str.substr(i, 9);
+					i += 9;
+				}
+			}
+	 
+			return newStr;
+		},
+		
+		/**
+		 * @param {string} str
+		 * @return {string}
+		 */
+		pctDecChars = function (str) {
+			var newStr = "", 
+				i = 0,
+				c, c2, c3;
+	 
+			while (i < str.length) {
+				c = parseInt(str.substr(i + 1, 2), 16);
+	 
+				if (c < 128) {
+					newStr += String.fromCharCode(c);
+					i += 3;
+				}
+				else if ((c > 191) && (c < 224)) {
+					c2 = parseInt(str.substr(i + 4, 2), 16);
+					newStr += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
+					i += 6;
+				}
+				else {
+					c2 = parseInt(str.substr(i + 4, 2), 16);
+					c3 = parseInt(str.substr(i + 7, 2), 16);
+					newStr += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
+					i += 9;
+				}
+			}
+	 
+			return newStr;
+		},
+		
+		/**
+		 * @return {string}
+		 */
+		typeOf = function (o) {
+			return o === undefined ? "undefined" : (o === null ? "null" : Object.prototype.toString.call(o).split(" ").pop().split("]").shift().toLowerCase());
+		},
+		
+		/**
+		 * @constructor
+		 * @implements URIComponents
+		 */
+		Components = function () {
+			this.errors = [];
+		}, 
+		
+		/** @namespace */ 
+		URI = exports;
+	
+	/**
+	 * Components
+	 */
+	
+	Components.prototype = {
+		/**
+		 * @type String
+		 */
+		
+		scheme : undefined,
+		
+		/**
+		 * @type String
+		 */
+		
+		authority : undefined,
+		
+		/**
+		 * @type String
+		 */
+		
+		userinfo : undefined,
+		
+		/**
+		 * @type String
+		 */
+		
+		host : undefined,
+		
+		/**
+		 * @type number
+		 */
+		
+		port : undefined,
+		
+		/**
+		 * @type string
+		 */
+		
+		path : undefined,
+		
+		/**
+		 * @type string
+		 */
+		
+		query : undefined,
+		
+		/**
+		 * @type string
+		 */
+		
+		fragment : undefined,
+		
+		/**
+		 * @type string
+		 * @values "uri", "absolute", "relative", "same-document"
+		 */
+		
+		reference : undefined,
+		
+		/**
+		 * @type Array
+		 */
+		
+		errors : undefined
+	};
+	
+	/**
+	 * URI
+	 */
+	
+	/**
+	 * @namespace
+	 */
+	
+	URI.SCHEMES = {};
+	
+	/**
+	 * @param {string} uriString
+	 * @param {Options} [options]
+	 * @returns {URIComponents}
+	 */
+	
+	URI.parse = function (uriString, options) {
+		var matches, 
+			components = new Components(),
+			schemeHandler;
+		
+		uriString = uriString ? uriString.toString() : "";
+		options = options || {};
+		
+		if (options.reference === "suffix") {
+			uriString = (options.scheme ? options.scheme + ":" : "") + "//" + uriString;
+		}
+		
+		matches = uriString.match(URI_REF);
+		
+		if (matches) {
+			if (matches[1]) {
+				//generic URI
+				matches = uriString.match(GENERIC_REF);
+			} else {
+				//relative URI
+				matches = uriString.match(RELATIVE_REF);
+			}
+		} 
+		
+		if (!matches) {
+			if (!options.tolerant) {
+				components.errors.push("URI is not strictly valid.");
+			}
+			matches = uriString.match(URI_PARSE);
+		}
+		
+		if (matches) {
+			if (NO_MATCH_IS_UNDEFINED) {
+				//store each component
+				components.scheme = matches[1];
+				components.authority = matches[2];
+				components.userinfo = matches[3];
+				components.host = matches[4];
+				components.port = parseInt(matches[5], 10);
+				components.path = matches[6] || "";
+				components.query = matches[7];
+				components.fragment = matches[8];
+				
+				//fix port number
+				if (isNaN(components.port)) {
+					components.port = matches[5];
+				}
+			} else {  //IE FIX for improper RegExp matching
+				//store each component
+				components.scheme = matches[1] || undefined;
+				components.authority = (uriString.indexOf("//") !== -1 ? matches[2] : undefined);
+				components.userinfo = (uriString.indexOf("@") !== -1 ? matches[3] : undefined);
+				components.host = (uriString.indexOf("//") !== -1 ? matches[4] : undefined);
+				components.port = parseInt(matches[5], 10);
+				components.path = matches[6] || "";
+				components.query = (uriString.indexOf("?") !== -1 ? matches[7] : undefined);
+				components.fragment = (uriString.indexOf("#") !== -1 ? matches[8] : undefined);
+				
+				//fix port number
+				if (isNaN(components.port)) {
+					components.port = (uriString.match(/\/\/.*\:(?:\/|\?|\#|$)/) ? matches[4] : undefined);
+				}
+			}
+			
+			//determine reference type
+			if (!components.scheme && !components.authority && !components.path && !components.query) {
+				components.reference = "same-document";
+			} else if (!components.scheme) {
+				components.reference = "relative";
+			} else if (!components.fragment) {
+				components.reference = "absolute";
+			} else {
+				components.reference = "uri";
+			}
+			
+			//check for reference errors
+			if (options.reference && options.reference !== "suffix" && options.reference !== components.reference) {
+				components.errors.push("URI is not a " + options.reference + " reference.");
+			}
+			
+			//check if a handler for the scheme exists
+			schemeHandler = URI.SCHEMES[(components.scheme || options.scheme || "").toLowerCase()];
+			if (schemeHandler && schemeHandler.parse) {
+				//perform extra parsing
+				schemeHandler.parse(components, options);
+			}
+		} else {
+			components.errors.push("URI can not be parsed.");
+		}
+		
+		return components;
+	};
+	
+	/**
+	 * @private
+	 * @param {URIComponents} components
+	 * @returns {string|undefined}
+	 */
+	
+	URI._recomposeAuthority = function (components) {
+		var uriTokens = [];
+		
+		if (components.userinfo !== undefined || components.host !== undefined || typeof components.port === "number") {
+			if (components.userinfo !== undefined) {
+				uriTokens.push(components.userinfo.toString().replace(NOT_USERINFO, pctEncChar));
+				uriTokens.push("@");
+			}
+			if (components.host !== undefined) {
+				uriTokens.push(components.host.toString().toLowerCase().replace(NOT_HOST, pctEncChar));
+			}
+			if (typeof components.port === "number") {
+				uriTokens.push(":");
+				uriTokens.push(components.port.toString(10));
+			}
+		}
+		
+		return uriTokens.length ? uriTokens.join("") : undefined;
+	};
+	
+	/**
+	 * @param {string} input
+	 * @returns {string}
+	 */
+	
+	URI.removeDotSegments = function (input) {
+		var output = [], s;
+		
+		while (input.length) {
+			if (input.match(RDS1)) {
+				input = input.replace(RDS1, "");
+			} else if (input.match(RDS2)) {
+				input = input.replace(RDS2, "/");
+			} else if (input.match(RDS3)) {
+				input = input.replace(RDS3, "/");
+				output.pop();
+			} else if (input === "." || input === "..") {
+				input = "";
+			} else {
+				s = input.match(RDS5)[0];
+				input = input.slice(s.length);
+				output.push(s);
+			}
+		}
+		
+		return output.join("");
+	};
+	
+	/**
+	 * @param {URIComponents} components
+	 * @param {Options} [options]
+	 * @returns {string}
+	 */
+	
+	URI.serialize = function (components, options) {
+		var uriTokens = [], 
+			schemeHandler, 
+			s;
+		options = options || {};
+		
+		//check if a handler for the scheme exists
+		schemeHandler = URI.SCHEMES[components.scheme || options.scheme];
+		if (schemeHandler && schemeHandler.serialize) {
+			//perform extra serialization
+			schemeHandler.serialize(components, options);
+		}
+		
+		if (options.reference !== "suffix" && components.scheme) {
+			uriTokens.push(components.scheme.toString().toLowerCase().replace(NOT_SCHEME, ""));
+			uriTokens.push(":");
+		}
+		
+		components.authority = URI._recomposeAuthority(components);
+		if (components.authority !== undefined) {
+			if (options.reference !== "suffix") {
+				uriTokens.push("//");
+			}
+			
+			uriTokens.push(components.authority);
+			
+			if (components.path && components.path.charAt(0) !== "/") {
+				uriTokens.push("/");
+			}
+		}
+		
+		if (components.path) {
+			s = URI.removeDotSegments(components.path.toString().replace(/%2E/ig, "."));
+			
+			if (components.scheme) {
+				s = s.replace(NOT_PATH, pctEncChar);
+			} else {
+				s = s.replace(NOT_PATH_NOSCHEME, pctEncChar);
+			}
+			
+			if (components.authority === undefined) {
+				s = s.replace(/^\/\//, "/%2F");  //don't allow the path to start with "//"
+			}
+			uriTokens.push(s);
+		}
+		
+		if (components.query) {
+			uriTokens.push("?");
+			uriTokens.push(components.query.toString().replace(NOT_QUERY, pctEncChar));
+		}
+		
+		if (components.fragment) {
+			uriTokens.push("#");
+			uriTokens.push(components.fragment.toString().replace(NOT_FRAGMENT, pctEncChar));
+		}
+		
+		return uriTokens
+			.join('')  //merge tokens into a string
+			.replace(PCT_ENCODEDS, pctDecUnreserved)  //undecode unreserved characters
+			//.replace(OTHER_CHARS, pctEncChar)  //replace non-URI characters
+			.replace(/%[0-9A-Fa-f]{2}/g, function (str) {  //uppercase percent encoded characters
+				return str.toUpperCase();
+			})
+		;
+	};
+	
+	/**
+	 * @param {URIComponents} base
+	 * @param {URIComponents} relative
+	 * @param {Options} [options]
+	 * @param {boolean} [skipNormalization]
+	 * @returns {URIComponents}
+	 */
+	
+	URI.resolveComponents = function (base, relative, options, skipNormalization) {
+		var target = new Components();
+		
+		if (!skipNormalization) {
+			base = URI.parse(URI.serialize(base, options), options);  //normalize base components
+			relative = URI.parse(URI.serialize(relative, options), options);  //normalize relative components
+		}
+		options = options || {};
+		
+		if (!options.tolerant && relative.scheme) {
+			target.scheme = relative.scheme;
+			target.authority = relative.authority;
+			target.userinfo = relative.userinfo;
+			target.host = relative.host;
+			target.port = relative.port;
+			target.path = URI.removeDotSegments(relative.path);
+			target.query = relative.query;
+		} else {
+			if (relative.authority !== undefined) {
+				target.authority = relative.authority;
+				target.userinfo = relative.userinfo;
+				target.host = relative.host;
+				target.port = relative.port;
+				target.path = URI.removeDotSegments(relative.path);
+				target.query = relative.query;
+			} else {
+				if (!relative.path) {
+					target.path = base.path;
+					if (relative.query !== undefined) {
+						target.query = relative.query;
+					} else {
+						target.query = base.query;
+					}
+				} else {
+					if (relative.path.charAt(0) === "/") {
+						target.path = URI.removeDotSegments(relative.path);
+					} else {
+						if (base.authority !== undefined && !base.path) {
+							target.path = "/" + relative.path;
+						} else if (!base.path) {
+							target.path = relative.path;
+						} else {
+							target.path = base.path.slice(0, base.path.lastIndexOf("/") + 1) + relative.path;
+						}
+						target.path = URI.removeDotSegments(target.path);
+					}
+					target.query = relative.query;
+				}
+				target.authority = base.authority;
+				target.userinfo = base.userinfo;
+				target.host = base.host;
+				target.port = base.port;
+			}
+			target.scheme = base.scheme;
+		}
+		
+		target.fragment = relative.fragment;
+		
+		return target;
+	};
+	
+	/**
+	 * @param {string} baseURI
+	 * @param {string} relativeURI
+	 * @param {Options} [options]
+	 * @returns {string}
+	 */
+	
+	URI.resolve = function (baseURI, relativeURI, options) {
+		return URI.serialize(URI.resolveComponents(URI.parse(baseURI, options), URI.parse(relativeURI, options), options, true), options);
+	};
+	
+	/**
+	 * @param {string|URIComponents} uri
+	 * @param {Options} options
+	 * @returns {string|URIComponents}
+	 */
+	
+	URI.normalize = function (uri, options) {
+		if (typeof uri === "string") {
+			return URI.serialize(URI.parse(uri, options), options);
+		} else if (typeOf(uri) === "object") {
+			return URI.parse(URI.serialize(uri, options), options);
+		}
+		
+		return uri;
+	};
+	
+	/**
+	 * @param {string|URIComponents} uriA
+	 * @param {string|URIComponents} uriB
+	 * @param {Options} options
+	 */
+	
+	URI.equal = function (uriA, uriB, options) {
+		if (typeof uriA === "string") {
+			uriA = URI.serialize(URI.parse(uriA, options), options);
+		} else if (typeOf(uriA) === "object") {
+			uriA = URI.serialize(uriA, options);
+		}
+		
+		if (typeof uriB === "string") {
+			uriB = URI.serialize(URI.parse(uriB, options), options);
+		} else if (typeOf(uriB) === "object") {
+			uriB = URI.serialize(uriB, options);
+		}
+		
+		return uriA === uriB;
+	};
+	
+	/**
+	 * @param {string} str
+	 * @returns {string}
+	 */
+	
+	URI.escapeComponent = function (str) {
+		return str && str.toString().replace(ESCAPE, pctEncChar);
+	};
+	
+	/**
+	 * @param {string} str
+	 * @returns {string}
+	 */
+	
+	URI.unescapeComponent = function (str) {
+		return str && str.toString().replace(PCT_ENCODEDS, pctDecChars);
+	};
+	
+	//export API
+	exports.pctEncChar = pctEncChar;
+	exports.pctDecChars = pctDecChars;
+	exports.Components = Components;
+	exports.URI = URI;
+	
+	//name-safe export API
+	exports["pctEncChar"] = pctEncChar;
+	exports["pctDecChars"] = pctDecChars;
+	exports["Components"] = Components;
+	exports["URI"] = {
+		"SCHEMES" : URI.SCHEMES,
+		"parse" : URI.parse,
+		"removeDotSegments" : URI.removeDotSegments,
+		"serialize" : URI.serialize,
+		"resolveComponents" : URI.resolveComponents,
+		"resolve" : URI.resolve,
+		"normalize" : URI.normalize,
+		"equal" : URI.equal,
+		"escapeComponent" : URI.escapeComponent,
+		"unescapeComponent" : URI.unescapeComponent
+	};
+	
+}());}, "shim": function(exports, require, module) {(function () {
+  "use strict";
+
+  function validate(envId, additionalSchemas, json, schema) {
+    var JSV, env, parsedJson, parsedSchema, report,
+      uri, schemaSpec, schemaSchema;
+
+    JSV = require('jsv').JSV;
+
+    if (!envId) {
+      env = JSV.createEnvironment();
+    } else {
+      env = JSV.createEnvironment(envId);
+    }
+
+    for (uri in additionalSchemas) {
+      if (additionalSchemas.hasOwnProperty(uri)) {
+        schemaSpec = additionalSchemas[uri];
+        parsedJson = JSON.parse(schemaSpec.data);
+
+        // JSV assigns special meaning to undefined, but we can't pass
+        // undefined from Ruby
+        schemaSchema = schemaSpec.schema || undefined;
+        env.createSchema(parsedJson, schemaSchema, uri);
+      }
+    }
+
+    parsedJson = JSON.parse(json);
+    parsedSchema = JSON.parse(schema);
+
+    report = env.validate(parsedJson, parsedSchema);
+
+    return {
+      "errors": report.errors
+    };
+  }
+
+  exports.validate = validate;
+}());
+
+/*jslint indent: 2*/
+/*global require: false, exports: false*/
+// vim:ts=2:sw=2:et:tw=78
+}});
