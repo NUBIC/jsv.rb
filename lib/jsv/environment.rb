@@ -14,7 +14,7 @@ module JSV
     def validate(json, schema)
       result = @context.validate(self, json, schema)
 
-      JSV::Report.new(result)
+      Report.new(result)
     end
 
     def create_schema(data, schema, uri)
