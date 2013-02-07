@@ -1,0 +1,24 @@
+1. Development dependencies
+
+Quoted versions are known working versions.  Other versions might work or might
+not.  Let me know about your experiences.
+
+* bundler (~> 1.2.0)
+* node.js (~> 0.8.0)
+* npm (~> 1.1.0)
+
+2. Preparing your environment
+
+From the source tree root:
+
+    $ npm install
+    $ bundle install
+    $ rake js:build
+    $ rake
+
+If all examples pass, you're good to go.
+
+3. Associated services
+
+* https://travis-ci.org/NUBIC/jsv.rb
+* https://codeclimate.com/github/NUBIC/jsv.rb
