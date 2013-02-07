@@ -3,7 +3,7 @@ require 'spec_helper'
 module JSV
   describe Context do
     describe '#inspect' do
-      it 'works across garbage collections' do
+      it 'does not raise an error after a GC cycle' do
         ctx = JSV::Context.new
         env = ctx.create_environment
         report = env.validate('{}', '{}')
