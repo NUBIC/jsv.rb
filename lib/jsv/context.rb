@@ -33,5 +33,18 @@ module JSV
                    json,
                    schema)
     end
+
+    # Public: A custom inspect.
+    #
+    # When using the RubyRacer runtime, weak references to Ruby wrappers for
+    # Javascript objects will show up in inspect output.  When those wrappers
+    # are GCed, references will break and Object#inspect breaks too.
+    #
+    # This implementation of inspect avoids the problem by not inspecting the
+    # execjs context.  (The context still appears to be fully functional after
+    # GC.)
+    def inspect
+      "#<#{self.class.name}:0x#{object_id.to_s(16)}>"
+    end
   end
 end
