@@ -12,7 +12,7 @@ Gem::Specification.new do |gem|
 
   gem.files         = all_versioned.grep(%r{^(lib|bin|spec)})
   gem.files        += ["js/build/jsv.rb.js"]
-  gem.files        += Dir["{README,LICENSE}"]
+  gem.files        += Dir["{README,LICENSE,JSV_LICENSE}"]
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.name          = "jsv.rb"
