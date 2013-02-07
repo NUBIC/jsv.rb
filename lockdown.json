@@ -5,36 +5,6 @@
   "async": {
     "0.2.2": "8414ee47da7548126b4d3d923850d54e68a72b28"
   },
-  "buffer-crc32": {
-    "0.1.1": "7e110dc9953908ab7c32acdc70c9f945b1cbc526"
-  },
-  "bytes": {
-    "0.1.0": "c574812228126d6369d1576925a8579db3f8e5a2"
-  },
-  "commander": {
-    "0.6.1": "fa68a14f6a945d54dbbe50d8cdb3320e9e3b1a06"
-  },
-  "connect": {
-    "2.7.2": "11799463bdaaaf99d5f9bef133bf2420b26e2680"
-  },
-  "cookie": {
-    "0.0.5": "f9acf9db57eb7568c9fcc596256b7bb22e307c81"
-  },
-  "cookie-signature": {
-    "0.0.1": "13d3603b5cf63befbf85a8801e37aa900db46985"
-  },
-  "debug": {
-    "0.7.0": "f5be05ec0434c992d79940e50b2695cfb2e01b08"
-  },
-  "express": {
-    "3.1.0": "f869b2d92320f5c3dd496c172e06f02b6ad43310"
-  },
-  "formidable": {
-    "1.0.11": "68f63325a035e644b6f7bb3d11243b9761de1b30"
-  },
-  "fresh": {
-    "0.1.0": "03e4b0178424e4c2d5d19a54d8814cdc97934850"
-  },
   "glob": {
     "3.1.17": "7dbe1d6f1e2ef039f6ba681616d39e135892088d"
   },
@@ -50,32 +20,14 @@
   "lru-cache": {
     "2.0.4": "b8b61ae09848385ec6768760e39c123e7e39568a"
   },
-  "methods": {
-    "0.0.1": "277c90f8bef39709645a8371c51c3b6c648e068c"
-  },
-  "mime": {
-    "1.2.6": "b1f86c768c025fa87b48075f1709f28aeaf20365"
-  },
   "minimatch": {
     "0.2.9": "b80af947e6a83a8c68f26e54c0d6125bac9f887f"
-  },
-  "mkdirp": {
-    "0.3.3": "595e251c1370c3a68bab2136d0e348b8105adf13"
   },
   "npmlog": {
     "0.0.2": "f0cf4b2c519950c00e91ba8e2868b62bf86254f6"
   },
   "osenv": {
     "0.0.3": "cd6ad8ddb290915ad9e22765576025d411f29cb6"
-  },
-  "pause": {
-    "0.0.1": "1d408b3fdb76923b9543d96fb4c9dfd535d9cb5d"
-  },
-  "qs": {
-    "0.5.1": "9f6bf5d9ac6c76384e95d36d15b48980e5e4add0"
-  },
-  "range-parser": {
-    "0.0.4": "c0427ffef51c10acba0782a46c9602e744ff620b"
   },
   "read-installed": {
     "0.0.1": "2d9b9086ae33ae42793210f519701169edabd2e2"
@@ -85,9 +37,6 @@
   },
   "semver": {
     "1.0.14": "cac5e2d55a6fbf958cb220ae844045071c78f676"
-  },
-  "send": {
-    "0.1.0": "cfb08ebd3cec9b7fc1a37d9ff9e875a971cf4640"
   },
   "sigmund": {
     "1.0.0": "66a2b3a749ae8b5fb89efd4fcc01dc94fbe02296"
