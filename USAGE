@@ -1,0 +1,66 @@
+1. The short version
+
+    require 'jsv'
+
+    schema = %Q{{"properties":{"foo":{"type":"integer"}}}}
+
+    jsv = JSV::Context.new
+    env = jsv.create_environment
+    report = env.validate('{"foo":"bar"}', schema)
+
+    report.has_errors?  # => true
+    report.errors       # => a list of errors
+
+Error objects are straightforward JSON-to-hash translations of error objects
+returned from JSV.  They currently look like this:
+
+    {
+     "uri"=>"urn:uuid:8708d3ca-94b7-4c71-b808-196534a52de4#/foo",
+     "schemaUri"=>"urn:uuid:2de057bb-d948-444a-bf0b-6b5def2ad358#/properties/foo",
+     "attribute"=>"type",
+     "message"=>"Instance is not a required type",
+     "details"=>["integer"]
+    }
+
+2. Specifying other schema environments
+
+JSV supports multiple JSON Schema drafts, as well as custom derivatives, via
+its environments mechanism.  Currently, jsv.rb only supports specification of
+environments shipped with JSV, i.e. JSON Schema drafts 00 through 03.
+
+    jsv = JSV::Context.new
+    env = jsv.create_environment
+    env = jsv.create_environment('json-schema-draft-02')
+
+3. Referencing other schemas
+
+    uri = "http://www.example.org/foo.json#"
+
+    schema = %Q{
+        {
+            "properties": {
+                "foo": {
+                    "$ref": "#{uri}"
+                }
+            }
+        }
+    }
+
+    referenced = %Q{
+        {
+            "properties": {
+                "bar": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+
+    jsv = JSV::Context.new
+    env = jsv.create_environment
+    env.create_schema(referenced, nil, uri)
+    report = env.validate('{"foo":{"bar":3}}', schema)
+
+    report.has_errors?  # => true
+
+# vim:ts=2:sw=2:et:tw=78

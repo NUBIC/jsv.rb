@@ -13,17 +13,37 @@ suitable for use in ExecJS.  It also contains a Ruby shim for communicating
 with JSV.
 
 jsv.rb was written at Northwestern University's Biomedical Informatics
-Center[2] for use in NCS Navigator Cases[3].
+Center[2] for use in NCS Navigator Cases[3].  It embeds JSV 4.0.2.
 
-2. License
+2. Usage
+
+The short version:
+
+    require 'jsv'
+
+    schema = %Q{{"properties":{"foo":{"type":"integer"}}}}
+
+    jsv = JSV::Context.new
+    env = jsv.create_environment
+    report = env.validate('{"foo":"bar"}', schema)
+
+    report.has_errors?  # => true
+    report.errors       # => a list of errors; see JSV's documentation for
+                        #    error object structure
+
+See USAGE for more details.
+
+3. License
 
 Copyright (c) 2013 David Yip.  Made available under the MIT License; see
 LICENSE for details.
 
-3. Special thanks
+4. Special thanks
 
 she, Kap Slap, Starsmith, Neon Indian, Florence + the Machine.
 
 [1]: https://github.com/garycourt/JSV
 [2]: http://projects.nubic.northwestern.edu/
 [3]: https://github.com/NUBIC/ncs_navigator_core
+
+# vim:ts=2:sw=2:et:tw=78
