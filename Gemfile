@@ -8,3 +8,7 @@ group :development do
   gem 'therubyracer'
   gem 'travis-lint'
 end
+
+group :travis do
+  gem 'johnson', :require => false
+end
