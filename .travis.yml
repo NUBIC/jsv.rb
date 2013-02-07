@@ -8,5 +8,5 @@ env:
   - EXECJS_RUNTIME=Johnson
 before_script:
   - "./script/ci-prep.sh"
-  - "apt-get install libmozjs-dev"
+  - "sudo apt-get install libmozjs-dev"
   - "rake js:build"
