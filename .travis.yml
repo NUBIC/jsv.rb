@@ -3,4 +3,5 @@ rvm:
   - rbx-19mode
   - 1.9.3
 before_script:
+  - "./script/ci-prep.sh"
   - "rake js:compress"
