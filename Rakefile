@@ -1,4 +1,8 @@
+require 'rspec/core/rake_task'
+
 JS_DIR = File.expand_path('../js', __FILE__)
+
+RSpec::Core::RakeTask.new(:spec)
 
 namespace :js do
   task :build do
@@ -10,3 +14,5 @@ namespace :js do
     mv "#{JS_DIR}/build/cc.js", "#{JS_DIR}/build/jsv.rb.js"
   end
 end
+
+task :default => :spec
