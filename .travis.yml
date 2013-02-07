@@ -2,6 +2,11 @@ language: ruby
 rvm:
   - rbx-19mode
   - 1.9.3
+env:
+  - EXECJS_RUNTIME=RubyRacer
+  - EXECJS_RUNTIME=Node
+  - EXECJS_RUNTIME=Johnson
 before_script:
   - "./script/ci-prep.sh"
+  - "apt-get install libmozjs-dev"
   - "rake js:build"
