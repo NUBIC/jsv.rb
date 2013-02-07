@@ -53,7 +53,7 @@ module JSV
                       "foo": {
                           "extends": {
                               "$ref": "urn:fooSchema#"
-                          }, 
+                          },
                           "type": "object"
                       }
                   }
